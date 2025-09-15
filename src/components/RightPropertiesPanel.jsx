@@ -10,7 +10,7 @@ const RightPropertiesPanel = () => {
 
   // A single state object to hold all properties of the selected object
   const [properties, setProperties] = useState({
-    fill: "#fffdfdff",
+    fill: "#ffffff",
     stroke: "#000000",
     strokeWidth: 0,
     opacity: 0,

@@ -67,7 +67,7 @@ const PrimaryToolbar = () => {
       <button className="toolbar-button" onClick={addText} title="Text">
         <FiType size={15} />
       </button>
-      
+
       <ToolbarButton
         toolName="image"
         icon={<FiImage size={15} />}
@@ -89,13 +89,6 @@ const PrimaryToolbar = () => {
       />
 
       <div className="toolbar-separator" />
-
-      {/* History */}
-      <ToolbarButton
-        toolName="history"
-        icon={<FiClock size={15} />}
-        title="History"
-      />
 
       <div className="toolbar-separator" />
 

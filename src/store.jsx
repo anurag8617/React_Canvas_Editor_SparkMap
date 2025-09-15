@@ -125,6 +125,15 @@ const useStore = create((set, get) => ({
     });
   },
 
+  updatePageSize: (index, newSize) => {
+    set((state) => {
+      const newPages = [...state.pages];
+      if (newPages[index]) {
+        newPages[index].size = newSize;
+      }
+      return { pages: newPages };
+    });
+  },
   // ---------------- Object tools ----------------
   duplicate: () => {
     const { canvas, saveState } = get();

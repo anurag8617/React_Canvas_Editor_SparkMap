@@ -287,8 +287,6 @@ const LeftToolbar = () => {
   const {
     canvas,
     saveState,
-    undo,
-    redo,
     duplicate,
     group,
     ungroup,
@@ -302,11 +300,11 @@ const LeftToolbar = () => {
     const rect = new fabric.Rect({
       left: 100,
       top: 100,
-      width: 160,
-      height: 100,
+      width: 60,
+      height: 50,
       fill: "#FF6B6B",
-      rx: 20,
-      ry: 20,
+      rx: 5,
+      ry: 5,
     });
     canvas.add(rect);
     canvas.setActiveObject(rect);
@@ -319,7 +317,7 @@ const LeftToolbar = () => {
     const circle = new fabric.Circle({
       left: 150,
       top: 120,
-      radius: 60,
+      radius: 30,
       fill: "#4D96FF",
     });
     canvas.add(circle);
@@ -333,8 +331,8 @@ const LeftToolbar = () => {
     const triangle = new fabric.Triangle({
       left: 200,
       top: 150,
-      width: 140,
-      height: 140,
+      width: 50,
+      height: 50,
       fill: "#FFD56B",
     });
     canvas.add(triangle);
@@ -345,6 +343,7 @@ const LeftToolbar = () => {
 
   const addStar = () => {
     if (!canvas) return;
+
     const star = new fabric.Polygon(
       [
         { x: 350, y: 75 },
@@ -358,8 +357,15 @@ const LeftToolbar = () => {
         { x: 230, y: 160 },
         { x: 320, y: 160 },
       ],
-      { fill: "#FFB86B" }
+      {
+        fill: "#FFB86B",
+        left: 250, // reposition after scaling
+        top: 180,
+        scaleX: 0.3, // shrink horizontally
+        scaleY: 0.3, // shrink vertically
+      }
     );
+
     canvas.add(star);
     canvas.setActiveObject(star);
     canvas.requestRenderAll();
@@ -531,28 +537,6 @@ const LeftToolbar = () => {
             </button>
             <button onClick={deleteActiveObjects} className="btn-danger">
               Delete Selected
-            </button>
-          </div>
-        </>
-      )}
-
-      {activeTool === "history" && (
-        <>
-          <h3 style={{ marginTop: "1rem" }}>History</h3>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={undo}
-              className="btn-secondary"
-              style={{ width: "100%" }}
-            >
-              Undo
-            </button>
-            <button
-              onClick={redo}
-              className="btn-secondary"
-              style={{ width: "100%" }}
-            >
-              Redo
             </button>
           </div>
         </>
