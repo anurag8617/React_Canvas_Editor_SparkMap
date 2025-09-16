@@ -524,7 +524,6 @@ const LeftToolbar = () => {
 
       {activeTool === "layers" && (
         <>
-          <PageSlider />
           <h3 style={{ marginTop: "1rem" }}>Layers & Delete</h3>
           <div
             style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
