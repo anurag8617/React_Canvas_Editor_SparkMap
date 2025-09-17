@@ -1,11 +1,22 @@
 import { create } from "zustand";
 import { fabric } from "fabric";
 
-const createNewPage = (pageNumber) => {
-  const blankCanvas = new fabric.Canvas(null, { backgroundColor: "#ffffff" });
+// inside useStore
+const createNewPage = (pageNumber, width = 800, height = 600) => {
+  const blankCanvas = new fabric.Canvas(null, {
+    backgroundColor: "#ffffff",
+    width,
+    height,
+  });
   const json = blankCanvas.toJSON();
   blankCanvas.dispose();
-  return { title: `Page ${pageNumber}`, undoStack: [json], redoStack: [] };
+  return {
+    title: `Page ${pageNumber}`,
+    undoStack: [json],
+    redoStack: [],
+    width,
+    height,
+  };
 };
 
 const useStore = create((set, get) => ({
@@ -82,6 +93,27 @@ const useStore = create((set, get) => ({
 
   togglePresentationMode: () =>
     set((state) => ({ isPresentationMode: !state.isPresentationMode })),
+
+  // Add function to update page size
+  updatePageSize: (width, height) => {
+    const { pages, activePageIndex, canvas, saveState } = get();
+    if (!canvas) return;
+
+    // Update page size in store
+    const newPages = [...pages];
+    newPages[activePageIndex].width = width;
+    newPages[activePageIndex].height = height;
+
+    // Resize Fabric canvas
+    canvas.setWidth(width);
+    canvas.setHeight(height);
+    canvas.renderAll();
+
+    // Save the state after resizing
+    saveState();
+
+    set({ pages: newPages, historyTimestamp: Date.now() });
+  },
 
   // Undo/Redo functions
   undo: () => {
