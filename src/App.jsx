@@ -1,69 +1,129 @@
-  import React, { useEffect } from "react";
-  import LeftToolbar from "./components/LeftToolbar";
-  import FabricCanvas from "./components/FabricCanvas";
-  import RightPropertiesPanel from "./components/RightPropertiesPanel";
-  import Header from "./components/Header";
-  import PrimaryToolbar from "./components/PrimaryToolbar";
-  import { useStore } from "./store";
-  import "./index.css";
-  import PageSlider from "./components/PageSlider";
+// import React from "react";
+// import LeftToolbar from "./components/LeftToolbar";
+// import FabricCanvas from "./components/FabricCanvas";
+// import RightPropertiesPanel from "./components/RightPropertiesPanel";
+// import Header from "./components/Header";
+// import PrimaryToolbar from "./components/PrimaryToolbar";
+// import PageSlider from "./components/PageSlider";
 
-  function App() {
-    // ✅ Correctly get canvas, undo, and redo from the store
-    const { canvas, undo, redo } = useStore();
+// function App() {
+//   return (
+//     <div className="app-container">
+//       <div className="left-column">
+//         <PrimaryToolbar />
+//         <LeftToolbar />
+//       </div>
+//       <main className="main-content">
+//         <Header />
+//         <div className="canvas-panel">
+//           <FabricCanvas />
+//         </div>
+//         <PageSlider />
+//       </main>
+//       <RightPropertiesPanel />
+//     </div>
+//   );
+// }
 
-    useEffect(() => {
-      const handleKeyDown = (e) => {
-        // Check if typing inside an input field
-        const isTyping =
-          e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA";
-        if (isTyping) return;
+// export default App;
 
-        // Handle Delete/Backspace
-        if (e.key === "Delete" || e.key === "Backspace") {
-          if (canvas) {
-            canvas.getActiveObjects().forEach((obj) => {
-              canvas.remove(obj);
-            });
-            canvas.discardActiveObject().requestRenderAll();
-          }
-        }
+import React, { useEffect } from "react";
+import LeftToolbar from "./components/LeftToolbar";
+import FabricCanvas from "./components/FabricCanvas";
+import RightPropertiesPanel from "./components/RightPropertiesPanel";
+import Header from "./components/Header";
+import PrimaryToolbar from "./components/PrimaryToolbar";
+import PageSlider from "./components/PageSlider";
+import { useStore } from "./store"; // ✅ Import the store
 
-        // Handle Undo/Redo
-        const isCtrl = e.ctrlKey || e.metaKey; // metaKey for Mac
-        if (isCtrl && e.key.toLowerCase() === "z") {
-          e.preventDefault();
-          undo();
-        }
-        if (isCtrl && e.key.toLowerCase() === "y") {
-          e.preventDefault();
-          redo();
-        }
-      };
+function App() {
+  // ✅ Get all the actions we need for the shortcuts
+  const {
+    undo,
+    redo,
+    duplicate,
+    cut,
+    paste,
+    copy, // Make sure to get copy
+    deleteSelection,
+    isPresentationMode,
+    togglePresentationMode,
+  } = useStore();
 
-      window.addEventListener("keydown", handleKeyDown);
+  // ✅ Add a global keydown event listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isPresentationMode) {
+        togglePresentationMode();
+        return;
+      }
+      // Don't trigger shortcuts if we're typing in an input
+      const isTyping =
+        e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA";
+      if (isTyping) return;
 
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-      };
-    }, [canvas, undo, redo]); // ✅ Add undo and redo to the dependency array
+      const isCtrl = e.ctrlKey || e.metaKey; // Handle Ctrl (Windows) and Cmd (Mac)
 
-    return (
-      <div className="app-container">
-        <div className="left-column">
-          <PrimaryToolbar />
-          <LeftToolbar />
-        </div>
-        <main className="main-content">
-          <Header />
-          <div className="panel">
-            <FabricCanvas />
-          </div>
-          <PageSlider />
-        </main>
-        <RightPropertiesPanel />
+      if (isCtrl && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        undo();
+      } else if (isCtrl && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+      } else if (isCtrl && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        duplicate();
+      } else if (isCtrl && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        cut();
+      } else if (isCtrl && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        copy();
+      } else if (isCtrl && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        paste();
+      } else if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        deleteSelection();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    undo,
+    redo,
+    duplicate,
+    cut,
+    paste,
+    copy,
+    deleteSelection,
+    isPresentationMode, // ✅ Add dependencies
+    togglePresentationMode,
+  ]); // Add dependencies
+
+  const containerClassName = isPresentationMode
+    ? "app-container presentation-mode"
+    : "app-container";
+
+  return (
+    <div className="app-container">
+      <div className="left-column">
+        <PrimaryToolbar />
+        <LeftToolbar />
       </div>
-    );
-  }
+      <main className="main-content">
+        <Header />
+        <div className="canvas-panel">
+          <FabricCanvas />
+        </div>
+        <PageSlider />
+      </main>
+      <RightPropertiesPanel />
+    </div>
+  );
+}
 
-  export default App;
+export default App;
