@@ -291,43 +291,34 @@ const Header = () => {
     pages,
     isPresentationMode,
     togglePresentationMode,
-  } = useStore();
+  } = useStore(); // ✅ THIS IS THE NEW, STABLE RESIZING FUNCTION
 
-  // ✅ THIS FUNCTION IS NOW FIXED
   const handleCanvasSizeChange = (e) => {
     if (!canvas) return;
 
     const [newWidth, newHeight] = e.target.value.split("x").map(Number);
-    const allObjects = canvas.getObjects();
+    const allObjects = canvas.getObjects(); // If the canvas is empty, just resize and we're done.
 
-    if (canvas.width === 0 || canvas.height === 0 || allObjects.length === 0) {
+    if (allObjects.length === 0) {
       canvas.setDimensions({ width: newWidth, height: newHeight });
       canvas.renderAll();
       saveState();
       return;
-    }
+    } // ✅ Step 1: Group all objects to treat them as a single entity
 
-    const scale = Math.min(newWidth / canvas.width, newHeight / canvas.height);
+    const group = new fabric.Group(allObjects, { canvas: canvas }); // ✅ Step 2: Calculate scale based on the group's dimensions
 
-    allObjects.forEach((obj) => {
-      obj.set({
-        left: obj.left * scale,
-        top: obj.top * scale,
-        scaleX: obj.scaleX * scale,
-        scaleY: obj.scaleY * scale,
-      });
-      obj.setCoords();
-    });
+    const scale = Math.min(newWidth / group.width, newHeight / group.height); // ✅ Step 3: Scale the entire group. This is non-destructive.
 
-    // ✅ STEP 1: Resize the canvas to the new dimensions FIRST.
-    canvas.setDimensions({ width: newWidth, height: newHeight });
+    group.scale(scale); // ✅ Step 4: Resize the actual canvas dimensions
 
-    // ✅ STEP 2: NOW, group and center the objects on the newly resized canvas.
-    const group = new fabric.Group(allObjects, { canvas: canvas });
-    group.center();
-    group.destroy(); // Ungroup after centering
+    canvas.setDimensions({ width: newWidth, height: newHeight }); // ✅ Step 5: Center the scaled group on the new canvas
 
-    // ✅ STEP 3: Render and save the final state.
+    group.center(); // ✅ Step 6: Ungroup the objects, applying the new transformations correctly
+
+    group.toActiveSelection();
+    canvas.discardActiveObject(); // ✅ Step 7: Render and save the final, stable state
+
     canvas.renderAll();
     saveState();
   };
@@ -426,7 +417,7 @@ const Header = () => {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "0.5rem 1rem",
-        background: "#2a2a2a", // ✅ Dark theme background
+        background: "#2a2a2a",
         borderRadius: "0.5rem",
         marginBottom: "1rem",
         flexShrink: 0,
@@ -444,6 +435,7 @@ const Header = () => {
             <MdFullscreen size={20} />
           )}
         </button>
+
         <button
           onClick={clearCanvas}
           style={{ marginRight: "1rem" }}
@@ -452,13 +444,18 @@ const Header = () => {
           Clear Canvas
         </button>
       </div>
+
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        <select onChange={handleCanvasSizeChange} defaultValue="800x600">
+        <select
+          value={`${canvas?.width || 800}x${canvas?.height || 600}`} // ✅ Sync dropdown with actual canvas size
+          onChange={handleCanvasSizeChange}
+        >
           <option value="800x600">800 × 600px</option>
           <option value="1200x800">1200 × 800px</option>
           <option value="1024x1024">1024 × 1024px</option>
           <option value="1080x1920">1080 × 1920px</option>
         </select>
+
         <button onClick={exportPNG} className="btn-primary">
           Export PNG
         </button>
