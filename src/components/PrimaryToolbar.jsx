@@ -1,6 +1,8 @@
 // import React from "react";
-// import { CgColorPicker } from "react-icons/cg";
 // import { useStore } from "../store";
+// import { fabric } from "fabric";
+
+// // Consolidated Icon Imports
 // import {
 //   FiSquare,
 //   FiType,
@@ -9,10 +11,13 @@
 //   FiCornerUpLeft,
 //   FiCornerUpRight,
 //   FiImage,
+//   FiGrid,
 // } from "react-icons/fi";
-// import { fabric } from "fabric";
+
+// import { CgColorPicker } from "react-icons/cg";
 
 // const PrimaryToolbar = () => {
+//   // Get all necessary state and actions from the store
 //   const {
 //     canvas,
 //     saveState,
@@ -21,10 +26,12 @@
 //     undo,
 //     redo,
 //     deleteSelection,
-//     isEyedropperActive,
-//     setIsEyedropperActive,
+//     isColorPickerActive,
+//     setIsColorPickerActive,
+//     setPickedColor,
 //   } = useStore();
 
+//   // Add a new text object to the canvas
 //   const addText = () => {
 //     if (!canvas) return;
 //     const text = new fabric.Textbox("New Text", {
@@ -38,6 +45,14 @@
 //     saveState();
 //   };
 
+//   // ✅ Toggle color picker tool
+//   const handleColorPickerClick = () => {
+//     const newActiveState = !isColorPickerActive;
+//     setIsColorPickerActive(newActiveState);
+//     setPickedColor(null);
+//   };
+
+//   // Reusable toolbar button
 //   const ToolbarButton = ({ toolName, icon, title }) => (
 //     <button
 //       onClick={() => setActiveTool(toolName)}
@@ -48,37 +63,46 @@
 //     </button>
 //   );
 
-//   const toggleEyedropper = () => {
-//     setIsEyedropperActive(!isEyedropperActive);
-//   };
 //   return (
 //     <div className="primary-toolbar">
+//       {/* Shapes Tool */}
 //       <ToolbarButton
 //         toolName="shapes"
 //         icon={<FiSquare size={20} />}
 //         title="Shapes"
 //       />
+//       {/* Text Tool */}
 //       <button onClick={addText} title="Add Text">
 //         <FiType size={20} />
 //       </button>
+//       {/* Color Picker */}
 //       <button
-//         onClick={toggleEyedropper}
+//         onClick={handleColorPickerClick}
 //         title="Color Picker"
-//         style={{ background: isEyedropperActive ? "#b53b74" : "#3c3c3c" }}
+//         style={{ background: isColorPickerActive ? "#b53b74" : "#3c3c3c" }}
 //       >
 //         <CgColorPicker size={20} />
 //       </button>
+//       {/* Images Tool */}
 //       <ToolbarButton
 //         toolName="images"
 //         icon={<FiImage size={20} />}
 //         title="Images"
 //       />
+//       {/* Edit Tools */}
 //       <ToolbarButton
 //         toolName="edit"
 //         icon={<FiEdit3 size={20} />}
 //         title="Edit Tools"
 //       />
+//       {/* ✅ NEW: Icons Tool */}
+//       <ToolbarButton
+//         toolName="icons"
+//         icon={<FiGrid size={20} />}
+//         title="Icons"
+//       />
 //       <div style={{ flex: 1 }}></div> {/* Spacer */}
+//       {/* Undo / Redo / Delete */}
 //       <button onClick={undo} title="Undo">
 //         <FiCornerUpLeft size={20} />
 //       </button>
@@ -94,11 +118,12 @@
 
 // export default PrimaryToolbar;
 
-import React from "react";
+// components/PrimaryToolbar.js
+import React, { useEffect, useState } from "react";
 import { useStore } from "../store";
 import { fabric } from "fabric";
 
-// Consolidated Icon Imports
+// Icons
 import {
   FiSquare,
   FiType,
@@ -108,11 +133,11 @@ import {
   FiCornerUpRight,
   FiImage,
   FiGrid,
+  FiSave,
 } from "react-icons/fi";
 import { CgColorPicker } from "react-icons/cg";
 
 const PrimaryToolbar = () => {
-  // Get all necessary state and actions from the store
   const {
     canvas,
     saveState,
@@ -124,9 +149,22 @@ const PrimaryToolbar = () => {
     isColorPickerActive,
     setIsColorPickerActive,
     setPickedColor,
+
+    // ✅ template actions
+    templates,
+    fetchTemplates,
+    saveTemplate,
+    loadTemplate,
   } = useStore();
 
-  // Add a new text object to the canvas
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+
+  // Load templates on mount
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
+
+  // Add new text object
   const addText = () => {
     if (!canvas) return;
     const text = new fabric.Textbox("New Text", {
@@ -140,14 +178,27 @@ const PrimaryToolbar = () => {
     saveState();
   };
 
-  // ✅ Toggle color picker tool
+  // Toggle color picker
   const handleColorPickerClick = () => {
     const newActiveState = !isColorPickerActive;
     setIsColorPickerActive(newActiveState);
     setPickedColor(null);
   };
 
-  // Reusable toolbar button
+  // Save template (ask name)
+  const handleSaveTemplate = () => {
+    const name = prompt("Enter template name:");
+    if (!name) return;
+    saveTemplate(name);
+  };
+
+  // Load template
+  const handleLoadTemplate = () => {
+    if (!selectedTemplate) return;
+    loadTemplate(selectedTemplate);
+  };
+
+  // Toolbar button helper
   const ToolbarButton = ({ toolName, icon, title }) => (
     <button
       onClick={() => setActiveTool(toolName)}
@@ -166,10 +217,12 @@ const PrimaryToolbar = () => {
         icon={<FiSquare size={20} />}
         title="Shapes"
       />
+
       {/* Text Tool */}
       <button onClick={addText} title="Add Text">
         <FiType size={20} />
       </button>
+
       {/* Color Picker */}
       <button
         onClick={handleColorPickerClick}
@@ -178,25 +231,59 @@ const PrimaryToolbar = () => {
       >
         <CgColorPicker size={20} />
       </button>
+
       {/* Images Tool */}
       <ToolbarButton
         toolName="images"
         icon={<FiImage size={20} />}
         title="Images"
       />
+
       {/* Edit Tools */}
       <ToolbarButton
         toolName="edit"
         icon={<FiEdit3 size={20} />}
         title="Edit Tools"
       />
-      {/* ✅ NEW: Icons Tool */}
+
+      {/* Icons Tool */}
       <ToolbarButton
         toolName="icons"
         icon={<FiGrid size={20} />}
         title="Icons"
       />
-      <div style={{ flex: 1 }}></div> {/* Spacer */}
+
+      {/* ========================== */}
+      {/* ✅ Template Controls */}
+      {/* ========================== */}
+      <button onClick={handleSaveTemplate} title="Save Template">
+        <FiSave size={20} />
+      </button>
+
+      <select
+        value={selectedTemplate}
+        onChange={(e) => setSelectedTemplate(e.target.value)}
+        style={{ marginLeft: "8px", background: "#3c3c3c", color: "#fff" }}
+      >
+        <option value=""></option>
+        {templates.map((tpl) => (
+          <option key={tpl.id} value={tpl.id}>
+            {tpl.name}
+          </option>
+        ))}
+      </select>
+
+      <button
+        onClick={handleLoadTemplate}
+        disabled={!selectedTemplate}
+        // style={{ marginLeft: "4px" }}
+      >
+        Load
+      </button>
+
+      {/* Spacer */}
+      <div style={{ flex: 1 }}></div>
+
       {/* Undo / Redo / Delete */}
       <button onClick={undo} title="Undo">
         <FiCornerUpLeft size={20} />

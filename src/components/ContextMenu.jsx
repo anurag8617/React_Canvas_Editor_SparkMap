@@ -7,8 +7,10 @@ import {
   FiTrash2,
   FiBox as FiGroup,
   FiGrid as FiUngroup,
+  FiDownload,
 } from "react-icons/fi";
-
+import { fabric } from "fabric"; // needed for StaticCanvas
+  
 const MenuItem = ({ icon, label, onClick, disabled = false }) => (
   <button
     onClick={onClick}
@@ -44,10 +46,9 @@ const ContextMenu = ({ x, y, target, onClose }) => {
   } = useStore();
   const menuRef = useRef(null);
 
-  // ✅ FIX: This effect now handles closing the menu correctly and safely.
+  // ✅ Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Only close if it's a LEFT-CLICK (button 0) and the click is outside the menu.
       if (
         event.button === 0 &&
         menuRef.current &&
@@ -56,7 +57,6 @@ const ContextMenu = ({ x, y, target, onClose }) => {
         onClose();
       }
     };
-    // We add the listener on a timeout to prevent it from catching the same click that opened it.
     const timeoutId = setTimeout(() => {
       document.addEventListener("mousedown", handleClickOutside);
     }, 0);
@@ -74,6 +74,56 @@ const ContextMenu = ({ x, y, target, onClose }) => {
   const isGroup = target?.type === "group";
   const isMultiSelect = target?.type === "activeSelection";
   const canPaste = !!clipboard;
+
+  // ✅ Download selection function
+  const exportActiveObject = (format = "png") => {
+    const { canvas } = useStore.getState();
+    const activeObject = canvas?.getActiveObject();
+    if (!activeObject) {
+      alert("No object selected!");
+      return;
+    }
+
+    activeObject.clone((cloned) => {
+      const bounds = cloned.getBoundingRect();
+      const tempCanvas = new fabric.StaticCanvas(null, {
+        width: bounds.width,
+        height: bounds.height,
+      });
+
+      cloned.set({
+        left: cloned.left - bounds.left,
+        top: cloned.top - bounds.top,
+      });
+
+      tempCanvas.add(cloned);
+      tempCanvas.renderAll();
+
+      if (format === "svg") {
+        const svg = tempCanvas.toSVG();
+        const blob = new Blob([svg], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "element.svg";
+        link.click();
+        URL.revokeObjectURL(url);
+      } else {
+        const dataURL = tempCanvas.toDataURL({
+          format,
+          quality: 1,
+          enableRetinaScaling: true,
+        });
+
+        const link = document.createElement("a");
+        link.href = dataURL;
+        link.download = `element.${format}`;
+        link.click();
+      }
+
+      tempCanvas.dispose();
+    });
+  };
 
   return (
     <div
@@ -139,6 +189,23 @@ const ContextMenu = ({ x, y, target, onClose }) => {
             icon={<FiTrash2 size={14} />}
             label="Delete"
             onClick={() => handleAction(deleteSelection)}
+          />
+          <hr style={{ border: "1px solid #555", margin: "5px 0" }} />
+          {/* ✅ New Download Options */}
+          <MenuItem
+            icon={<FiDownload size={14} />}
+            label="Download Selection PNG"
+            onClick={() => exportActiveObject("png")}
+          />
+          <MenuItem
+            icon={<FiDownload size={14} />}
+            label="Download Selection JPG"
+            onClick={() => exportActiveObject("jpg")}
+          />
+          <MenuItem
+            icon={<FiDownload size={14} />}
+            label="Download Selection SVG"
+            onClick={() => exportActiveObject("svg")}
           />
         </>
       )}

@@ -1,8 +1,10 @@
 import React from "react";
 import { useStore } from "../store";
+import { useNavigate } from "react-router-dom"; // ✅ import
 
 const InitialSizeSelector = () => {
   const { initializePageSize } = useStore();
+  const navigate = useNavigate(); // ✅ hook
 
   const containerStyle = {
     display: "flex",
@@ -14,7 +16,7 @@ const InitialSizeSelector = () => {
     gap: "2rem",
     backgroundColor: "#1e1e1e",
   };
-  
+
   const buttonStyle = {
     padding: "1rem 2rem",
     fontSize: "1.2rem",
@@ -37,6 +39,11 @@ const InitialSizeSelector = () => {
     e.target.style.color = "#b53b74";
   };
 
+  const handleSelect = (width, height) => {
+    initializePageSize(width, height); // ✅ set size in store
+    navigate("/dashboard"); // ✅ redirect to canvas page
+  };
+
   return (
     <div style={containerStyle}>
       <h1 style={{ color: "#cbcfd4" }}>Choose Your Canvas Shape</h1>
@@ -45,7 +52,7 @@ const InitialSizeSelector = () => {
           style={buttonStyle}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={() => initializePageSize(800, 600)} // Landscape
+          onClick={() => handleSelect(800, 600)} // Landscape
         >
           Landscape
         </button>
@@ -53,7 +60,7 @@ const InitialSizeSelector = () => {
           style={{ ...buttonStyle, marginLeft: "1rem" }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={() => initializePageSize(600, 800)} // Portrait
+          onClick={() => handleSelect(600, 800)} // Portrait
         >
           Portrait
         </button>
@@ -63,3 +70,4 @@ const InitialSizeSelector = () => {
 };
 
 export default InitialSizeSelector;
+        

@@ -39,6 +39,52 @@ const useStore = create((set, get) => ({
     "https://picsum.photos/id/40/300/200",
   ],
 
+  templates: [],
+  setTemplates: (templates) => set({ templates }),
+
+  // ✅ Fetch all templates from backend
+  fetchTemplates: async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/templates");
+      const data = await res.json();
+      set({ templates: data });
+    } catch (err) {
+      console.error("❌ Fetch templates failed:", err);
+    }
+  },
+
+  // ✅ Save current canvas as template
+  saveTemplate: async (name) => {
+    const canvas = get().canvas;
+    if (!canvas) return;
+
+    const json = canvas.toJSON();
+
+    await fetch("http://localhost:5000/api/templates/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, data: json }),
+    });
+
+    // refresh list
+    await get().fetchTemplates();
+  },
+
+  // ✅ Load a template by ID
+  loadTemplate: async (id) => {
+    const canvas = get().canvas;
+    if (!canvas) return;
+
+    const res = await fetch(`http://localhost:5000/api/templates/${id}`);
+    const template = await res.json();
+
+    if (template?.data) {
+      canvas.loadFromJSON(template.data, () => {
+        canvas.renderAll();
+      });
+    }
+  },
+
   updateCanvasViewRef: null,
   setUpdateCanvasViewRef: (ref) => set({ updateCanvasViewRef: ref }),
 

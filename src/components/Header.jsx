@@ -187,6 +187,15 @@ const Header = () => {
             <button onClick={exportSVG}>Export SVG</button>
             <button onClick={exportCurrentPageAsPDF}>Export Page PDF</button>
             <button onClick={exportAllPagesAsPDF}>Export All as PDF</button>
+            <button onClick={() => exportActiveObject("png")}>
+              Download Selection PNG
+            </button>
+            <button onClick={() => exportActiveObject("jpg")}>
+              Download Selection JPG
+            </button>
+            <button onClick={() => exportActiveObject("svg")}>
+              Download Selection SVG
+            </button> 
           </div>
         </div>
       </div>
