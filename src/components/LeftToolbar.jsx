@@ -1,183 +1,6 @@
-// import React, { useRef } from "react";
-// import { useStore } from "../store";
-// import { fabric } from "fabric";
-// import {
-//   MdCropSquare,
-//   MdRadioButtonUnchecked,
-//   MdChangeHistory,
-//   MdContentCopy,
-//   MdOutlineGroup,
-//   MdCloseFullscreen, // ✅ instead of MdOutlineUngroup
-//   MdArrowUpward,
-// } from "react-icons/md";
-// const uploadInputRef = useRef(null);
-
-// const LeftToolbar = () => {
-//   const {
-//     canvas,
-//     saveState,
-//     activeTool,
-//     duplicate,
-//     group,
-//     ungroup,
-//     bringForward,
-//     sendBackwards,
-//   } = useStore();
-
-//   // ✅ 4. Function to add an image to the canvas from a URL
-//   const addImageFromUrl = (url) => {
-//     if (!canvas) return;
-//     fabric.Image.fromURL(
-//       url,
-//       (img) => {
-//         img.scaleToWidth(200); // Scale image to a default size
-//         canvas.add(img).centerObject(img).renderAll();
-//         saveState();
-//       },
-//       { crossOrigin: "anonymous" }
-//     ); // Needed for images from other domains
-//   };
-
-//   // ✅ 5. Function to handle file upload
-//   const handleImageUpload = (e) => {
-//     const file = e.target.files[0];
-//     if (!file) return;
-//     const reader = new FileReader();
-//     reader.onload = (event) => {
-//       addImageFromUrl(event.target.result);
-//     };
-//     reader.readAsDataURL(file);
-//     e.target.value = ""; // Reset input value
-//   };
-
-//   const addShape = (shapeType) => {
-//     if (!canvas) return;
-//     let shape;
-//     if (shapeType === "rect") {
-//       shape = new fabric.Rect({
-//         width: 100,
-//         height: 100,
-//         fill: "#FF6B6B",
-//         top: 50,
-//         left: 50,
-//       });
-//     } else if (shapeType === "circle") {
-//       shape = new fabric.Circle({
-//         radius: 50,
-//         fill: "#4D96FF",
-//         top: 100,
-//         left: 100,
-//       });
-//     } else if (shapeType === "triangle") {
-//       shape = new fabric.Triangle({
-//         width: 100,
-//         height: 100,
-//         fill: "#FFD56B",
-//         top: 50,
-//         left: 50,
-//       });
-//     }
-//     canvas.add(shape).setActiveObject(shape);
-//     saveState();
-//   };
-
-//   return (
-//     <div className="left-toolbar">
-//       {activeTool === "shapes" && (
-//         <div>
-//           <h3>Shapes</h3>
-//           <button
-//             onClick={() => addShape("rect")}
-//             style={{ marginBottom: "0.5rem", width: "100%" }}
-//           >
-//             <MdCropSquare size={20} style={{ marginRight: "6px" }} />
-//             Rectangle
-//           </button>
-//           <button
-//             onClick={() => addShape("circle")}
-//             style={{ marginBottom: "0.5rem", width: "100%" }}
-//           >
-//             <MdRadioButtonUnchecked size={20} style={{ marginRight: "6px" }} />
-//             Circle
-//           </button>
-//           <button
-//             onClick={() => addShape("triangle")}
-//             style={{ width: "100%" }}
-//           >
-//             <MdChangeHistory size={20} style={{ marginRight: "6px" }} />
-//             Triangle
-//           </button>
-//         </div>
-//       )}
-//       {activeTool === "edit" && (
-//         <div
-//           style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-//         >
-//           <h3>Edit Tools</h3>
-//           <button onClick={duplicate}>
-//             <MdContentCopy size={20} style={{ marginRight: "6px" }} />
-//             Duplicate
-//           </button>
-//           <button onClick={group}>
-//             <MdOutlineGroup size={20} style={{ marginRight: "6px" }} />
-//             Group
-//           </button>
-//           <button onClick={ungroup}>
-//             <MdCloseFullscreen size={20} style={{ marginRight: "6px" }} />
-//             Ungroup
-//           </button>
-//           <hr style={{ border: "1px solid #555", margin: "1rem 0" }} />
-//           <button onClick={bringForward}>
-//             <MdArrowUpward size={20} style={{ marginRight: "6px" }} />
-//             Bring Forward
-//           </button>
-//           <button onClick={sendBackwards}>
-//             <MdArrowDownward size={20} style={{ marginRight: "6px" }} />
-//             Send Backwards
-//           </button>
-//         </div>
-//       )}
-//       {activeTool === "images" && (
-//         <div>
-//           <h3>Images</h3>
-//           <button
-//             onClick={() => uploadInputRef.current?.click()}
-//             style={{ width: "100%", marginBottom: "1rem" }}
-//             className="btn-primary"
-//           >
-//             Upload Image
-//           </button>
-//           <input
-//             type="file"
-//             accept="image/*"
-//             ref={uploadInputRef}
-//             onChange={handleImageUpload}
-//             style={{ display: "none" }}
-//           />
-
-//           <div className="image-grid">
-//             {images.map((imgUrl, i) => (
-//               <div
-//                 key={i}
-//                 className="image-item"
-//                 onClick={() => addImageFromUrl(imgUrl)}
-//               >
-//                 <img src={imgUrl} alt={`pre-built image ${i + 1}`} />
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default LeftToolbar;
-
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useStore } from "../store";
 import { fabric } from "fabric";
-// ✅ FIX #1: Added the new icons to the import statement here.
 import {
   MdCropSquare,
   MdRadioButtonUnchecked,
@@ -192,9 +15,9 @@ import {
   MdPentagon,
   MdStarBorder,
 } from "react-icons/md";
+import IconLibrary from "./icons/IconLibrary";
 
 const LeftToolbar = () => {
-  // ✅ FIX #2: Removed the incorrect icon names from this hook.
   const {
     canvas,
     saveState,
@@ -204,14 +27,38 @@ const LeftToolbar = () => {
     ungroup,
     bringForward,
     sendBackwards,
-    images,
   } = useStore();
+
   const uploadInputRef = useRef(null);
+  const [images, setImages] = useState([]);
+  const [activeImageTab, setActiveImageTab] = useState("my");
+
+  const [searchQuery, setSearchQuery] = useState("nature");
+  const [unsplashImages, setUnsplashImages] = useState([]);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/images");
+        if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
+        const data = await res.json();
+        const imageUrls = data.map(
+          (img) => `http://localhost:5000/uploads/${img.filename}`
+        );
+        setImages(imageUrls);
+        if (imageUrls.length > 0) {
+          addImageFromUrl(imageUrls[0]);
+        }
+      } catch (err) {
+        console.error("❌ Failed to fetch images:", err);
+      }
+    };
+    loadImages();
+  }, []);
 
   const addShape = (shapeType) => {
     if (!canvas) return;
     let shape;
-
     if (shapeType === "rect") {
       shape = new fabric.Rect({
         width: 100,
@@ -259,11 +106,7 @@ const LeftToolbar = () => {
           { x: 20, y: 90 },
           { x: 0, y: 40 },
         ],
-        {
-          fill: "#32CD32",
-          top: 250,
-          left: 150,
-        }
+        { fill: "#32CD32", top: 250, left: 150 }
       );
     } else if (shapeType === "star") {
       shape = new fabric.Polygon(
@@ -279,14 +122,9 @@ const LeftToolbar = () => {
           { x: 0, y: 40 },
           { x: 35, y: 40 },
         ],
-        {
-          fill: "#FF4500",
-          top: 200,
-          left: 300,
-        }
+        { fill: "#FF4500", top: 200, left: 300 }
       );
     }
-
     if (shape) {
       canvas.add(shape).setActiveObject(shape);
       saveState();
@@ -306,128 +144,334 @@ const LeftToolbar = () => {
     );
   };
 
-  const handleImageUpload = (e) => {
+  const fetchUnsplashImages = async (query) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/images/pre-image?query=${query}`
+      );
+      if (!res.ok) throw new Error("Unsplash fetch failed");
+      const data = await res.json();
+      setUnsplashImages(data);
+    } catch (err) {
+      console.error("❌ Error fetching Unsplash:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeImageTab === "pre") {
+      fetchUnsplashImages(searchQuery);
+    }
+  }, [searchQuery, activeImageTab]);
+
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      addImageFromUrl(event.target.result);
-    };
-    reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const res = await fetch("http://localhost:5000/api/images/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
+      const data = await res.json();
+      const imageUrl = `http://localhost:5000/${data.filepath}`;
+      addImageFromUrl(imageUrl);
+      setImages((prev) => [...prev, imageUrl]);
+    } catch (err) {
+      console.error("❌ Upload failed:", err);
+    }
     e.target.value = "";
   };
 
+  // ===================================================================
+  // 🔹 1. STYLES AND HELPER COMPONENT FOR THE NEW SHAPES PANEL
+  // ===================================================================
+  const shapePanelStyles = {
+    title: {
+      fontSize: "14px",
+      fontWeight: "600",
+      margin: "0 0 10px 0",
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+      color: "#A0A0A0",
+    },
+    grid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: "8px",
+    },
+    button: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      padding: "10px 12px",
+      border: "none",
+      backgroundColor: "#3A3A3A",
+      color: "#E0E0E0",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontSize: "14px",
+      textAlign: "left",
+      transition: "background-color 0.2s ease",
+    },
+  };
+
+  const ShapeButton = ({ onClick, children }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const hoverStyle = {
+      backgroundColor: isHovered ? "#4A4A4A" : "#3A3A3A",
+    };
+    return (
+      <button
+        onClick={onClick}
+        style={{ ...shapePanelStyles.button, ...hoverStyle }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {children}
+      </button>
+    );
+  };
+  // ===================================================================
+
   return (
-    <div className="left-toolbar">
+    <div
+      className="left-toolbar"
+      style={{
+        width: "260px",
+        boxSizing: "border-box",
+        background: "#1e1e1e",
+        color: "#fff",
+        padding: "10px",
+      }}
+    >
+      {/* =================================================================== */}
+      {/* 🔹 2. REDESIGNED SHAPES SECTION                                    */}
+      {/* =================================================================== */}
       {activeTool === "shapes" && (
         <div>
-          <h3>Shapes</h3>
-          <button
-            onClick={() => addShape("rect")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdCropSquare size={20} style={{ marginRight: "6px" }} />
-            Rectangle
-          </button>
-          <button
-            onClick={() => addShape("circle")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdRadioButtonUnchecked size={20} style={{ marginRight: "6px" }} />
-            Circle
-          </button>
-          <button
-            onClick={() => addShape("triangle")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdChangeHistory size={20} style={{ marginRight: "6px" }} />
-            Triangle
-          </button>
-          <button
-            onClick={() => addShape("ellipse")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdBlurOn size={20} style={{ marginRight: "6px" }} />
-            Ellipse
-          </button>
-          <button
-            onClick={() => addShape("line")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdRemove size={20} style={{ marginRight: "6px" }} />
-            Line
-          </button>
-          <button
-            onClick={() => addShape("pentagon")}
-            style={{ marginBottom: "0.5rem", width: "100%" }}
-          >
-            <MdPentagon size={20} style={{ marginRight: "6px" }} />
-            Pentagon
-          </button>
-          <button onClick={() => addShape("star")} style={{ width: "100%" }}>
-            <MdStarBorder size={20} style={{ marginRight: "6px" }} />
-            Star
-          </button>
+          <h3 style={shapePanelStyles.title}>Shapes</h3>
+          <div style={shapePanelStyles.grid}>
+            <ShapeButton onClick={() => addShape("rect")}>
+              <MdCropSquare size={20} /> Rectangle
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("circle")}>
+              <MdRadioButtonUnchecked size={20} /> Circle
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("triangle")}>
+              <MdChangeHistory size={20} /> Triangle
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("ellipse")}>
+              <MdBlurOn size={20} /> Ellipse
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("line")}>
+              <MdRemove size={20} /> Line
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("pentagon")}>
+              <MdPentagon size={20} /> Pentagon
+            </ShapeButton>
+            <ShapeButton onClick={() => addShape("star")}>
+              <MdStarBorder size={20} /> Star
+            </ShapeButton>
+          </div>
         </div>
       )}
+      {/* =================================================================== */}
 
+      {/* 🔹 Edit Tools Section (UNCHANGED) */}
       {activeTool === "edit" && (
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-        >
+        <div>
           <h3>Edit Tools</h3>
           <button onClick={duplicate}>
-            <MdContentCopy size={20} style={{ marginRight: "6px" }} />
-            Duplicate
+            <MdContentCopy size={20} /> Duplicate
           </button>
           <button onClick={group}>
-            <MdOutlineGroup size={20} style={{ marginRight: "6px" }} />
-            Group
+            <MdOutlineGroup size={20} /> Group
           </button>
           <button onClick={ungroup}>
-            <MdCloseFullscreen size={20} style={{ marginRight: "6px" }} />
-            Ungroup
+            <MdCloseFullscreen size={20} /> Ungroup
           </button>
-          <hr style={{ border: "1px solid #555", margin: "1rem 0" }} />
           <button onClick={bringForward}>
-            <MdArrowUpward size={20} style={{ marginRight: "6px" }} />
-            Bring Forward
+            <MdArrowUpward size={20} /> Bring Forward
           </button>
           <button onClick={sendBackwards}>
-            <MdArrowDownward size={20} style={{ marginRight: "6px" }} />
-            Send Backwards
+            <MdArrowDownward size={20} /> Send Backwards
           </button>
         </div>
       )}
 
+      {/* 🔹 Images Section (UNCHANGED) */}
       {activeTool === "images" && (
-        <div>
-          <h3>Images</h3>
-          <button
-            onClick={() => uploadInputRef.current?.click()}
-            style={{ width: "100%", marginBottom: "1rem" }}
-            className="btn-primary"
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h3 style={{ marginBottom: "5px" }}>Images</h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              marginBottom: "10px",
+            }}
           >
-            Upload Image
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={uploadInputRef}
-            onChange={handleImageUpload}
-            style={{ display: "none" }}
-          />
-          <div className="image-grid">
-            {images.map((imgUrl, i) => (
-              <div
-                key={i}
-                className="image-item"
-                onClick={() => addImageFromUrl(imgUrl)}
-              >
-                <img src={imgUrl} alt={`pre-built image ${i + 1}`} />
-              </div>
-            ))}
+            <button
+              onClick={() => setActiveImageTab("my")}
+              style={{
+                flex: 1,
+                padding: "8px 12px",
+                background: activeImageTab === "my" ? "#b53b74" : "#2d2d2d",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "500",
+                transition: "background 0.2s",
+              }}
+            >
+              My Images
+            </button>
+            <button
+              onClick={() => setActiveImageTab("pre")}
+              style={{
+                flex: 1,
+                padding: "8px 12px",
+                background: activeImageTab === "pre" ? "#b53b74" : "#2d2d2d",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "500",
+                transition: "background 0.2s",
+              }}
+            >
+              Pre-Images
+            </button>
           </div>
+          {activeImageTab === "my" && (
+            <div style={{ textAlign: "center" }}>
+              <button
+                onClick={() => uploadInputRef.current?.click()}
+                style={{
+                  background: "#4d96ff",
+                  border: "none",
+                  padding: "8px 14px",
+                  borderRadius: "6px",
+                  color: "#fff",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                }}
+              >
+                Upload Image
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={uploadInputRef}
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+              />
+            </div>
+          )}
+          {activeImageTab === "pre" && (
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Unsplash..."
+              style={{
+                width: "100%",
+                padding: "6px 10px",
+                borderRadius: "6px",
+                border: "1px solid #333",
+                background: "#2d2d2d",
+                color: "#fff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          )}
+          <div
+            className="image-grid"
+            style={{
+              marginTop: "10px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+              gap: "10px",
+              maxHeight: "500px",
+              overflowY: "auto",
+              paddingRight: "5px",
+            }}
+          >
+            {activeImageTab === "my"
+              ? images.map((imgUrl, i) => (
+                  <div
+                    key={i}
+                    className="image-item"
+                    style={{
+                      border: "2px solid transparent",
+                      borderRadius: "6px",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      transition: "border 0.2s",
+                    }}
+                    onClick={() => addImageFromUrl(imgUrl)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.border = "2px solid #b53b74")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.border = "2px solid transparent")
+                    }
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`uploaded ${i + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "70px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ))
+              : unsplashImages.map((img, i) => (
+                  <div
+                    key={i}
+                    className="image-item"
+                    style={{
+                      border: "2px solid transparent",
+                      borderRadius: "6px",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      transition: "border 0.2s",
+                    }}
+                    onClick={() => addImageFromUrl(img.url)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.border = "2px solid #b53b74")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.border = "2px solid transparent")
+                    }
+                  >
+                    <img
+                      src={img.thumb}
+                      alt={`unsplash ${i + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "70px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ))}
+          </div>
+        </div>
+      )}
+
+      {/* 🔹 Icons Section (UNCHANGED) */}
+      {activeTool === "icons" && (
+        <div>
+          <h3>Icons</h3>
+          <IconLibrary />
         </div>
       )}
     </div>

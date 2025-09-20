@@ -169,18 +169,11 @@ const Header = () => {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {/* Page size buttons */}
+        {/* Page size buttons
         <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button onClick={() => updatePageSize(800, 600)}>
-            800 × 600 (Landscape)
-          </button>
-          <button onClick={() => updatePageSize(1080, 1920)}>
-            1080 × 1920 (Portrait)
-          </button>
-          <button onClick={() => updatePageSize(1024, 1024)}>
-            1024 × 1024 (Square)
-          </button>
-        </div>
+          <button onClick={() => updatePageSize(800, 600)}>Landscape</button>
+          <button onClick={() => updatePageSize(600, 800)}>Portrait</button>
+        </div>   */}
 
         {/* Download dropdown */}
         <div className="dropdown">

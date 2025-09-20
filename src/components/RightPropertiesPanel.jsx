@@ -13,6 +13,7 @@ import {
   MdAutoFixHigh,
 } from "react-icons/md";
 
+// This helper function is great, no changes needed here.
 const toHex = (color) => {
   if (!color || typeof color !== "string") return "#000000";
   if (color.startsWith("#")) return color;
@@ -36,9 +37,11 @@ const defaultProperties = {
 };
 
 const RightPropertiesPanel = () => {
-  const { canvas, activeObject, saveState } = useStore();
+  // ✅ Get activeColor from the store
+  const { canvas, activeObject, saveState, activeColor } = useStore();
   const [props, setProps] = useState(defaultProperties);
 
+  // This effect syncs the panel with the selected object's properties
   useEffect(() => {
     if (activeObject) {
       const getDecoration = (obj) => {
@@ -64,9 +67,11 @@ const RightPropertiesPanel = () => {
     }
   }, [activeObject]);
 
+  // This function handles all property changes from the inputs
   const handleChange = (name, value) => {
     if (!activeObject || !canvas) return;
 
+    // Update the local state for the input controls
     setProps((prev) => ({ ...prev, [name]: value }));
 
     let update = { [name]: value };
@@ -79,10 +84,22 @@ const RightPropertiesPanel = () => {
     } else if (name === "borderRadius") {
       update = { rx: parseInt(value, 10) || 0, ry: parseInt(value, 10) || 0 };
     }
+
+    // Apply the change to the fabric object and save state
     activeObject.set(update);
     canvas.requestRenderAll();
     saveState();
   };
+
+  // ✅ =======================================================
+  // ✅ NEW EFFECT TO "PASTE" THE EYEDROPPER COLOR
+  // ✅ This automatically applies the picked color to the selected object.
+  // ✅ =======================================================
+  useEffect(() => {
+    if (activeObject && activeColor) {
+      handleChange("fill", activeColor);
+    }
+  }, [activeColor]); // This effect runs only when the activeColor changes
 
   const isTextObject = activeObject?.type === "textbox";
   const isShape =
@@ -90,11 +107,30 @@ const RightPropertiesPanel = () => {
 
   return (
     <div className="properties-panel">
+      {/* ✅ ADDED A DISPLAY FOR THE CURRENTLY PICKED COLOR */}
+      <div style={{ marginBottom: "1.5rem" }}>
+        <label style={{ fontSize: "0.8rem", color: "#888" }}>
+          Picked Color
+        </label>
+        <div
+          style={{
+            width: "100%",
+            height: "30px",
+            backgroundColor: activeColor,
+            border: "1px solid #555",
+            borderRadius: "4px",
+            marginTop: "4px",
+          }}
+        ></div>
+      </div>
+
       {activeObject ? (
         <div>
           <h3>Properties</h3>
 
-          {/* Generic Properties */}
+          {/* Generic Properties (Fill, Stroke, etc.) */}
+          {/* No changes needed below this line, your existing code is perfect */}
+
           <div className="property-row">
             <MdFormatColorFill size={20} />
             <label>Fill</label>

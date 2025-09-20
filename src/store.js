@@ -29,6 +29,8 @@ const useStore = create((set, get) => ({
   activeTool: "shapes",
   clipboard: null,
   isPresentationMode: false,
+  isEyedropperActive: false,
+  activeColor: "#000000",
 
   images: [
     "https://picsum.photos/id/10/300/200",
@@ -37,11 +39,37 @@ const useStore = create((set, get) => ({
     "https://picsum.photos/id/40/300/200",
   ],
 
+  updateCanvasViewRef: null,
+  setUpdateCanvasViewRef: (ref) => set({ updateCanvasViewRef: ref }),
+
+  // ✅ ADD THESE TWO NEW STATES
+  isColorPickerActive: false, // Is the eyedropper tool on?
+  pickedColor: null, // Stores the color you picked
+  // ✅ ADD THIS NEW STATE
+  isSizeSelected: false,
+
+  // ✅ ADD THESE ACTIONS TO CHANGE THE STATES
+  setIsColorPickerActive: (isActive) => set({ isColorPickerActive: isActive }),
+  setPickedColor: (color) => set({ pickedColor: color }),
+
+  // ✅ ADD THESE TWO NEW ACTIONS
+  setIsEyedropperActive: (isActive) => set({ isEyedropperActive: isActive }),
+  setActiveColor: (color) => set({ activeColor: color }),
+
   // Setters
   setCanvas: (canvasInstance) => set({ canvas: canvasInstance }),
   setActiveObject: (object) => set({ activeObject: object }),
   setActiveTool: (tool) => set({ activeTool: tool }),
 
+  initializePageSize: (width, height) => {
+    const initialPage = createNewPage(1, width, height);
+    set({
+      pages: [initialPage],
+      activePageIndex: 0,
+      isSizeSelected: true,
+      historyTimestamp: Date.now(),
+    });
+  },
   // This is for saving actions ON a page (like moving an object)
   saveState: () => {
     const { canvas, pages, activePageIndex } = get();
@@ -96,22 +124,23 @@ const useStore = create((set, get) => ({
 
   // Add function to update page size
   updatePageSize: (width, height) => {
-    const { pages, activePageIndex, canvas, saveState } = get();
+    const { pages, activePageIndex, canvas, saveState, updateCanvasViewRef } =
+      get();
     if (!canvas) return;
 
-    // Update page size in store
     const newPages = [...pages];
     newPages[activePageIndex].width = width;
     newPages[activePageIndex].height = height;
 
-    // Resize Fabric canvas
     canvas.setWidth(width);
     canvas.setHeight(height);
     canvas.renderAll();
 
-    // Save the state after resizing
-    saveState();
+    if (updateCanvasViewRef?.current) {
+      updateCanvasViewRef.current();
+    }
 
+    saveState();
     set({ pages: newPages, historyTimestamp: Date.now() });
   },
 
