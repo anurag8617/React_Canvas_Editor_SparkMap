@@ -15,6 +15,7 @@ import {
   MdPentagon,
   MdStarBorder,
 } from "react-icons/md";
+import { FiTrash2 } from "react-icons/fi";  
 import IconLibrary from "./icons/IconLibrary";
 
 const LeftToolbar = () => {
@@ -27,6 +28,9 @@ const LeftToolbar = () => {
     ungroup,
     bringForward,
     sendBackwards,
+    templates, // ✅ add this
+    loadTemplate,
+    deleteTemplate,
   } = useStore();
 
   const uploadInputRef = useRef(null);
@@ -346,6 +350,7 @@ const LeftToolbar = () => {
               Pre-Images
             </button>
           </div>
+
           {activeImageTab === "my" && (
             <div style={{ textAlign: "center" }}>
               <button
@@ -472,6 +477,76 @@ const LeftToolbar = () => {
         <div>
           <h3>Icons</h3>
           <IconLibrary />
+        </div>
+      )}
+      {activeTool === "templates" && (
+        <div>
+          <h3 style={{ marginBottom: "10px" }}>Templates</h3>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+              gap: "12px",
+            }}
+          >
+            {templates.map((tpl) => (
+              <div
+                key={tpl.id}
+                style={{
+                  position: "relative", // ✅ for delete button positioning
+                  background: "#2d2d2d",
+                  padding: "10px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  transition: "transform 0.2s ease, background 0.2s ease",
+                }}
+                onClick={() => loadTemplate(tpl.id)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#3c3c3c")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#2d2d2d")
+                }
+              >
+                {/* 🔹 Delete button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent loadTemplate on click
+                    if (window.confirm(`Delete template "${tpl.name}"?`)) {
+                      deleteTemplate(tpl.id);
+                    }
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "6px",
+                    right: "6px",
+                    background: "transparent",
+                    border: "none",
+                    color: "#ff6b6b",
+                    cursor: "pointer",
+                  }}
+                >
+                  <FiTrash2 size={16} />
+                </button>
+
+                <div
+                  style={{
+                    width: "100%",
+                    height: "80px",
+                    background: "#444",
+                    borderRadius: "6px",
+                    marginBottom: "6px",
+                  }}
+                >
+                  {/* later: add thumbnail/preview */}
+                </div>
+                <span style={{ fontSize: "14px", color: "#fff" }}>
+                  {tpl.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

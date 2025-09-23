@@ -1,88 +1,88 @@
-  import React, { useEffect, useState } from "react";
-  import { useStore } from "../store";
-  import { fabric } from "fabric";
-  import { FiX } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
+import { useStore } from "../store";
+import { fabric } from "fabric";
+import { FiX } from "react-icons/fi";
 
-  const PageSlider = () => {
-    const {
-      pages,
-      activePageIndex,
-      setActivePage,
-      addPage,
-      historyTimestamp,
-      deletePage,
-    } = useStore();
-    const [thumbnails, setThumbnails] = useState([]);
-    const [hoveredIndex, setHoveredIndex] = useState(null);
+const PageSlider = () => {
+  const {
+    pages,
+    activePageIndex,
+    setActivePage,
+    addPage,
+    historyTimestamp,
+    deletePage,
+  } = useStore();
+  const [thumbnails, setThumbnails] = useState([]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-    useEffect(() => {
-      const generateThumbs = async () => {
-        const thumbPromises = pages.map(
-          (page) =>
-            new Promise((resolve) => {
-              // Your temporary canvas for generating thumbnails
-              const tempCanvas = new fabric.StaticCanvas(null, {
-                width: 160, // higher resolution for better quality
-                height: 90,
-              });
-              const pageState = page.undoStack[page.undoStack.length - 1];
+  useEffect(() => {
+    const generateThumbs = async () => {
+      const thumbPromises = pages.map(
+        (page) =>
+          new Promise((resolve) => {
+            // Your temporary canvas for generating thumbnails
+            const tempCanvas = new fabric.StaticCanvas(null, {
+              width: 160, // higher resolution for better quality
+              height: 90,
+            });
+            const pageState = page.undoStack[page.undoStack.length - 1];
 
-              tempCanvas.loadFromJSON(pageState, () => {
-                tempCanvas.backgroundColor =
-                  pageState.backgroundColor || "#ffffff";
+            tempCanvas.loadFromJSON(pageState, () => {
+              tempCanvas.backgroundColor =
+                pageState.backgroundColor || "#ffffff";
 
-                // ----------------------------------------------------------------
-                // ✅ FIX: This new logic correctly fits the entire canvas into the thumbnail.
-                // ----------------------------------------------------------------
+              // ----------------------------------------------------------------
+              // ✅ FIX: This new logic correctly fits the entire canvas into the thumbnail.
+              // ----------------------------------------------------------------
 
-                // 1. Get original canvas dimensions from the saved state.
-                const originalWidth = pageState.width || 1920; // Default fallback
-                const originalHeight = pageState.height || 1080; // Default fallback
+              // 1. Get original canvas dimensions from the saved state.
+              const originalWidth = pageState.width || 1920; // Default fallback
+              const originalHeight = pageState.height || 1080; // Default fallback
 
-                // 2. Calculate the scale factor to fit the whole canvas.
-                const scale = Math.min(
-                  tempCanvas.width / originalWidth,
-                  tempCanvas.height / originalHeight
-                );
+              // 2. Calculate the scale factor to fit the whole canvas.
+              const scale = Math.min(
+                tempCanvas.width / originalWidth,
+                tempCanvas.height / originalHeight
+              );
 
-                // 3. Set the zoom and center the content.
-                tempCanvas.setZoom(scale);
-                const panX = (tempCanvas.width - originalWidth * scale) / 2;
-                const panY = (tempCanvas.height - originalHeight * scale) / 2;
-                tempCanvas.viewportTransform[4] = panX;
-                tempCanvas.viewportTransform[5] = panY;
+              // 3. Set the zoom and center the content.
+              tempCanvas.setZoom(scale);
+              const panX = (tempCanvas.width - originalWidth * scale) / 2;
+              const panY = (tempCanvas.height - originalHeight * scale) / 2;
+              tempCanvas.viewportTransform[4] = panX;
+              tempCanvas.viewportTransform[5] = panY;
 
-                // ----------------------------------------------------------------
-                // The old logic (which caused the problem) is removed.
-                // ----------------------------------------------------------------
+              // ----------------------------------------------------------------
+              // The old logic (which caused the problem) is removed.
+              // ----------------------------------------------------------------
 
-                tempCanvas.renderAll();
-                const dataUrl = tempCanvas.toDataURL({ format: "png" });
-                tempCanvas.dispose();
-                resolve(dataUrl);
-              });
-            })
-        );
-        const newThumbs = await Promise.all(thumbPromises);
-        setThumbnails(newThumbs);
-      };
-      generateThumbs();
-    }, [pages, historyTimestamp]);
+              tempCanvas.renderAll();
+              const dataUrl = tempCanvas.toDataURL({ format: "png" });
+              tempCanvas.dispose();
+              resolve(dataUrl);
+            });
+          })
+      );
+      const newThumbs = await Promise.all(thumbPromises);
+      setThumbnails(newThumbs);
+    };
+    generateThumbs();
+  }, [pages, historyTimestamp]);
 
-    // --- No changes were made to the JSX or styles below this line ---
-
-    return (
-      <div
-        className="page-slider"
-        style={{
-          display: "flex",
-          gap: "1rem",
-          padding: "1rem 1rem 0 1rem",
-          overflowX: "auto",
-          alignItems: "center",
-        }}
-      >
-        {pages.map((page, index) => (
+  return (
+    <div
+      className="page-slider"
+      style={{
+        display: "flex",
+        gap: "1rem",
+        padding: "1rem 1rem 0 1rem",
+        overflowX: "auto",
+        alignItems: "center",
+      }}
+    >
+      {/* Add this check to prevent crashes */}
+      {Array.isArray(pages) &&
+        pages.map((page, index) => (
           <div
             key={index}
             style={{
@@ -112,7 +112,11 @@
                 <img
                   src={thumbnails[index]}
                   alt={page.title}
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
                 />
               )}
             </div>
@@ -174,25 +178,25 @@
           </div>
         ))}
 
-        <div
-          onClick={addPage}
-          style={{
-            flexShrink: 0,
-            width: 100,
-            height: 60,
-            border: "2px dashed #b53b74",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#b53b74",
-            cursor: "pointer",
-            alignSelf: "center",
-          }}
-        >
-          + Add Page
-        </div>
+      <div
+        onClick={addPage}
+        style={{
+          flexShrink: 0,
+          width: 100,
+          height: 60,
+          border: "2px dashed #b53b74",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#b53b74",
+          cursor: "pointer",
+          alignSelf: "center",
+        }}
+      >
+        + Add Page
       </div>
-    );
-  };
+    </div>
+  );
+};
 
-  export default PageSlider;
+export default PageSlider;
