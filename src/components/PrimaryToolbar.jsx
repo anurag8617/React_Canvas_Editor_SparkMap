@@ -14,12 +14,10 @@ import {
 } from "react-icons/fi";
 import { CgColorPicker } from "react-icons/cg";
 
-const PrimaryToolbar = () => {
+const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
   const {
     canvas,
     saveState,
-    activeTool, 
-    setActiveTool,
     undo,
     redo,
     deleteSelection,
@@ -82,7 +80,7 @@ const PrimaryToolbar = () => {
 
   const ToolbarButton = ({ toolName, icon, title }) => (
     <button
-      onClick={() => setActiveTool(toolName)}
+      onMouseEnter={() => setActiveTool(toolName)}
       style={{ background: activeTool === toolName ? "#b53b74" : "#3c3c3c" }}
       title={title}
     >
@@ -97,13 +95,18 @@ const PrimaryToolbar = () => {
         icon={<FiSquare size={20} />}
         title="Shapes"
       />
-      <button onClick={addText} title="Add Text">
+      <button
+        onClick={addText}
+        title="Add Text"
+        onMouseEnter={() => setActiveTool(null)}
+      >
         <FiType size={20} />
       </button>
       <button
         onClick={handleColorPickerClick}
         title="Color Picker"
         style={{ background: isColorPickerActive ? "#b53b74" : "#3c3c3c" }}
+        onMouseEnter={() => setActiveTool(null)}
       >
         <CgColorPicker size={20} />
       </button>
@@ -122,47 +125,31 @@ const PrimaryToolbar = () => {
         icon={<FiGrid size={20} />}
         title="Icons"
       />
-
-      {/* <div style={{ flex: 1 }}></div>
-
-      <button onClick={handleSaveTemplate} title="Save Template">
-        <FiSave size={20} />
-      </button>
-
-      <div className="template-list">
-        <select
-          value={selectedTemplate}
-          onChange={(e) => setSelectedTemplate(e.target.value)}
-        >
-          <option value="">Select Template</option>
-          {templates.map((tpl) => (
-            <option key={tpl.id} value={tpl.id}>
-              {tpl.name}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleLoadTemplate} disabled={!selectedTemplate}>
-          Load
-        </button>
-        {selectedTemplate && (
-          <button className="delete-btn" onClick={handleDeleteTemplate}>
-            <FiTrash2 size={16} />
-          </button>
-        )}
-      </div> */}
       <ToolbarButton
         toolName="templates"
         icon={<FiGrid size={20} />}
         title="Templates"
       />
 
-      <button onClick={undo} title="Undo">
+      <button
+        onClick={undo}
+        title="Undo"
+        onMouseEnter={() => setActiveTool(null)}
+      >
         <FiCornerUpLeft size={20} />
       </button>
-      <button onClick={redo} title="Redo">
+      <button
+        onClick={redo}
+        title="Redo"
+        onMouseEnter={() => setActiveTool(null)}
+      >
         <FiCornerUpRight size={20} />
       </button>
-      <button onClick={deleteSelection} title="Delete">
+      <button
+        onClick={deleteSelection}
+        title="Delete"
+        onMouseEnter={() => setActiveTool(null)}
+      >
         <FiTrash2 size={20} />
       </button>
     </div>

@@ -18,11 +18,10 @@ import {
 import { FiTrash2 } from "react-icons/fi";
 import IconLibrary from "./icons/IconLibrary";
 
-const LeftToolbar = () => {
+const LeftToolbar = ({ activeTool }) => {
   const {
     canvas,
     saveState,
-    activeTool,
     duplicate,
     group,
     ungroup,

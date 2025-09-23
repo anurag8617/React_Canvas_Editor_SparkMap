@@ -52,7 +52,7 @@ const InitialSizeSelector = () => {
           style={buttonStyle}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={() => handleSelect(800, 600)} // Landscape
+          onClick={() => handleSelect(792, 550)} // Landscape
         >
           Landscape
         </button>
@@ -60,7 +60,7 @@ const InitialSizeSelector = () => {
           style={{ ...buttonStyle, marginLeft: "1rem" }}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={() => handleSelect(600, 800)} // Portrait
+          onClick={() => handleSelect(550, 792)} // Portrait
         >
           Portrait
         </button>
@@ -70,4 +70,3 @@ const InitialSizeSelector = () => {
 };
 
 export default InitialSizeSelector;
-        

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import LeftToolbar from "../components/LeftToolbar";
 import FabricCanvas from "../components/FabricCanvas";
 import RightPropertiesPanel from "../components/RightPropertiesPanel";
@@ -9,6 +9,7 @@ import { useStore } from "../store";
 
 const DashboardPage = () => {
   const { isPresentationMode } = useStore();
+  const [activeTool, setActiveTool] = useState(null);
 
   const containerClassName = isPresentationMode
     ? "app-container presentation-mode"
@@ -16,9 +17,9 @@ const DashboardPage = () => {
 
   return (
     <div className={containerClassName}>
-      <div className="left-column">
-        <PrimaryToolbar />
-        <LeftToolbar />
+      <div className="left-column" onMouseLeave={() => setActiveTool(null)}>
+        <PrimaryToolbar setActiveTool={setActiveTool} activeTool={activeTool} />
+        {activeTool && <LeftToolbar activeTool={activeTool} />}
       </div>
       <main className="main-content">
         <Header />

@@ -2,7 +2,12 @@ import React from "react";
 import { useStore } from "../store";
 import { jsPDF } from "jspdf";
 import { fabric } from "fabric";
-import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import {
+  MdFullscreen,
+  MdFullscreenExit,
+  MdZoomIn,
+  MdZoomOut,
+} from "react-icons/md";
 
 const Header = () => {
   const {
@@ -12,7 +17,27 @@ const Header = () => {
     isPresentationMode,
     togglePresentationMode,
     updatePageSize,
+    zoomLevel,
+    setZoom,
   } = useStore();
+
+  const handleZoomIn = () => setZoom(zoomLevel + 0.1);
+  const handleZoomOut = () => setZoom(zoomLevel - 0.1);
+
+  const fitToScreen = () => {
+    if (!canvas || !canvas.wrapperEl?.parentElement) return;
+    const container = canvas.wrapperEl.parentElement;
+    const canvasWidth = canvas.getWidth();
+    const canvasHeight = canvas.getHeight();
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    const scale = Math.min(
+      containerWidth / canvasWidth,
+      containerHeight / canvasHeight,
+      1
+    );
+    setZoom(scale);
+  };
 
   const clearCanvas = () => {
     if (
@@ -169,11 +194,21 @@ const Header = () => {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {/* Page size buttons
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button onClick={() => updatePageSize(800, 600)}>Landscape</button>
-          <button onClick={() => updatePageSize(600, 800)}>Portrait</button>
-        </div>   */}
+        <div className="zoom-controls">
+          <button onClick={handleZoomOut} title="Zoom Out">
+            <MdZoomOut size={20} />
+          </button>
+          <button
+            onClick={fitToScreen}
+            title="Fit to Screen"
+            style={{ width: "60px" }}
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+          <button onClick={handleZoomIn} title="Zoom In">
+            <MdZoomIn size={20} />
+          </button>
+        </div>
 
         {/* Download dropdown */}
         <div className="dropdown">
@@ -187,15 +222,6 @@ const Header = () => {
             <button onClick={exportSVG}>Export SVG</button>
             <button onClick={exportCurrentPageAsPDF}>Export Page PDF</button>
             <button onClick={exportAllPagesAsPDF}>Export All as PDF</button>
-            <button onClick={() => exportActiveObject("png")}>
-              Download Selection PNG
-            </button>
-            <button onClick={() => exportActiveObject("jpg")}>
-              Download Selection JPG
-            </button>
-            <button onClick={() => exportActiveObject("svg")}>
-              Download Selection SVG
-            </button> 
           </div>
         </div>
       </div>
@@ -229,6 +255,11 @@ const Header = () => {
         }
         .dropdown:hover .dropdown-content {
           display: block;
+        }
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
       `}</style>
     </div>

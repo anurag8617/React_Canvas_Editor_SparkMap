@@ -19,6 +19,8 @@ const FabricCanvas = () => {
     pickedColor,
     setPickedColor,
     historyTimestamp,
+    pages,
+    activePageIndex,
   } = useStore();
 
   const [contextMenu, setContextMenu] = useState({
@@ -367,16 +369,18 @@ const FabricCanvas = () => {
     handleCanvasChange,
   ]);
 
+  const currentPage = pages[activePageIndex];
+
   return (
     <div
       ref={wrapperRef}
       style={{
-        width: "100%",
-        height: "100%",
+        width: `${currentPage.width}px`,
+        height: `${currentPage.height}px`,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#2a2a2a",
+        background: "transpe",
       }}
     >
       <canvas
@@ -398,4 +402,3 @@ const FabricCanvas = () => {
 };
 
 export default FabricCanvas;
-  
