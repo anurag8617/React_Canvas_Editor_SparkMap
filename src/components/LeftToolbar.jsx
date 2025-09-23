@@ -15,7 +15,7 @@ import {
   MdPentagon,
   MdStarBorder,
 } from "react-icons/md";
-import { FiTrash2 } from "react-icons/fi";  
+import { FiTrash2 } from "react-icons/fi";
 import IconLibrary from "./icons/IconLibrary";
 
 const LeftToolbar = () => {
