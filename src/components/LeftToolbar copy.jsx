@@ -25,15 +25,14 @@ const LeftToolbar = ({ activeTool }) => {
     duplicate,
     group,
     ungroup,
+    saveTemplate,
     bringForward,
     sendBackwards,
-    templates,
-    saveTemplate, // ✅ Updated store action
+    templates, // ✅ add this
     loadTemplate,
-    deleteTemplate, // ✅ Updated store action
+    deleteTemplate,
   } = useStore();
 
-  // ✅ FIX: The component now only calls the store action. No fetch logic here.
   const handleSaveTemplate = async () => {
     if (!canvas) return;
 
@@ -45,8 +44,25 @@ const LeftToolbar = ({ activeTool }) => {
     const name = prompt("Enter a template name:");
     if (!name) return;
 
-    // The store will handle the API call and state update
-    await saveTemplate(name);
+    // get raw JSON object
+    const jsonData = canvas.toJSON();
+
+    try {
+      const response = await fetch("http://localhost:5000/api/templates/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          data: jsonData, // ✅ keep it raw here
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to save template");
+      const result = await response.json();
+      alert(`Template saved with ID: ${result.id}`);
+    } catch (err) {
+      console.error("❌ Error saving template:", err);
+    }
   };
 
   const uploadInputRef = useRef(null);
@@ -63,8 +79,9 @@ const LeftToolbar = ({ activeTool }) => {
         const res = await fetch("http://localhost:5000/api/images");
         if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
         const data = await res.json();
-        // Assuming your backend returns a full URL now in the 'url' field
-        const imageUrls = data.map((img) => img.url).filter(Boolean);
+        const imageUrls = data
+          .filter((img) => img && img.filename) // ✅ FIX: Filter out invalid image data
+          .map((img) => `http://localhost:5000/uploads/${img.filename}`);
         setImages(imageUrls);
       } catch (err) {
         console.error("❌ Failed to fetch images:", err);
@@ -162,14 +179,13 @@ const LeftToolbar = ({ activeTool }) => {
   };
 
   const fetchUnsplashImages = async (query) => {
-    setUnsplashError(null);
+    setUnsplashError(null); // Reset error state
     try {
       const res = await fetch(
-        `http://localhost:5000/api/images/pre-image?query=${encodeURIComponent(
-          query
-        )}`
+        `http://localhost:5000/api/images/pre-image?query=nature`
       );
       if (!res.ok) {
+        // ✅ FIX: Throw a more specific error for better debugging
         throw new Error(
           `Unsplash fetch failed: ${res.status} ${res.statusText}`
         );
@@ -178,6 +194,7 @@ const LeftToolbar = ({ activeTool }) => {
       setUnsplashImages(data);
     } catch (err) {
       console.error("❌ Error fetching Unsplash:", err);
+      // ✅ FIX: Set an error message to display in the UI
       setUnsplashError("Could not load pre-images. Please try again later.");
     }
   };
@@ -204,6 +221,8 @@ const LeftToolbar = ({ activeTool }) => {
       if (!res.ok) throw new Error(`Upload failed: ${res.statusText}`);
 
       const data = await res.json();
+
+      // ✅ Use backend's full URL
       const imageUrl = data.url;
 
       addImageFromUrl(imageUrl);
@@ -215,6 +234,9 @@ const LeftToolbar = ({ activeTool }) => {
     e.target.value = "";
   };
 
+  // ===================================================================
+  // 🔹 1. STYLES AND HELPER COMPONENT FOR THE NEW SHAPES PANEL
+  // ===================================================================
   const shapePanelStyles = {
     title: {
       fontSize: "14px",
@@ -261,6 +283,7 @@ const LeftToolbar = ({ activeTool }) => {
       </button>
     );
   };
+  // ===================================================================
 
   return (
     <div
@@ -273,6 +296,9 @@ const LeftToolbar = ({ activeTool }) => {
         padding: "10px",
       }}
     >
+      {/* =================================================================== */}
+      {/* 🔹 2. REDESIGNED SHAPES SECTION                                    */}
+      {/* =================================================================== */}
       {activeTool === "shapes" && (
         <div>
           <h3 style={shapePanelStyles.title}>Shapes</h3>
@@ -301,7 +327,9 @@ const LeftToolbar = ({ activeTool }) => {
           </div>
         </div>
       )}
+      {/* =================================================================== */}
 
+      {/* 🔹 Edit Tools Section (UNCHANGED) */}
       {activeTool === "edit" && (
         <div>
           <h3>Edit Tools</h3>
@@ -323,6 +351,7 @@ const LeftToolbar = ({ activeTool }) => {
         </div>
       )}
 
+      {/* 🔹 Images Section (UNCHANGED) */}
       {activeTool === "images" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <h3 style={{ marginBottom: "5px" }}>Images</h3>
@@ -412,6 +441,7 @@ const LeftToolbar = ({ activeTool }) => {
               }}
             />
           )}
+          {/* ✅ FIX: Display error message if Unsplash fetch fails */}
           {activeImageTab === "pre" && unsplashError && (
             <div
               style={{
@@ -500,13 +530,13 @@ const LeftToolbar = ({ activeTool }) => {
         </div>
       )}
 
+      {/* 🔹 Icons Section (UNCHANGED) */}
       {activeTool === "icons" && (
         <div>
           <h3>Icons</h3>
           <IconLibrary />
         </div>
       )}
-
       {activeTool === "templates" && (
         <div>
           <h3 style={{ marginBottom: "10px" }}>Templates</h3>
@@ -524,7 +554,7 @@ const LeftToolbar = ({ activeTool }) => {
               <div
                 key={tpl.id}
                 style={{
-                  position: "relative",
+                  position: "relative", // ✅ for delete button positioning
                   background: "#2d2d2d",
                   padding: "10px",
                   borderRadius: "8px",
@@ -540,6 +570,7 @@ const LeftToolbar = ({ activeTool }) => {
                   (e.currentTarget.style.background = "#2d2d2d")
                 }
               >
+                {/* 🔹 Delete button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation(); // prevent loadTemplate on click
@@ -555,7 +586,6 @@ const LeftToolbar = ({ activeTool }) => {
                     border: "none",
                     color: "#ff6b6b",
                     cursor: "pointer",
-                    zIndex: 10,
                   }}
                 >
                   <FiTrash2 size={16} />
@@ -565,39 +595,13 @@ const LeftToolbar = ({ activeTool }) => {
                   style={{
                     width: "100%",
                     height: "80px",
-                    marginBottom: "6px",
+                    background: "#444",
                     borderRadius: "6px",
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "#444", // Add a fallback background
+                    marginBottom: "6px",
                   }}
                 >
-                  {/* ✅ CORRECTED: Check for tpl.previewImage */}
-                  {tpl.previewImage ? (
-                    <img
-                      src={tpl.previewImage}
-                      alt={tpl.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
-                  ) : (
-                    // This div is no longer needed but is harmless as a fallback
-                    // in case the parent div's background doesn't show.
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        background: "#444",
-                      }}
-                    ></div>
-                  )}
+                  {/* later: add thumbnail/preview */}
                 </div>
-
                 <span style={{ fontSize: "14px", color: "#fff" }}>
                   {tpl.name}
                 </span>

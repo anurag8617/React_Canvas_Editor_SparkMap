@@ -13,6 +13,8 @@ import {
   FiSave,
 } from "react-icons/fi";
 import { CgColorPicker } from "react-icons/cg";
+import { TbIcons } from "react-icons/tb";
+import { LuLayoutTemplate } from "react-icons/lu";
 
 const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
   const {
@@ -81,7 +83,7 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
   const ToolbarButton = ({ toolName, icon, title }) => (
     <button
       onMouseEnter={() => setActiveTool(toolName)}
-      style={{ background: activeTool === toolName ? "#b53b74" : "#3c3c3c" }}
+      style={{ background: activeTool === toolName ? "#b53b74" : "#1e1e1e" }}
       title={title}
     >
       {icon}
@@ -92,7 +94,7 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
     <div className="primary-toolbar">
       <ToolbarButton
         toolName="shapes"
-        icon={<FiSquare size={20} />}
+        icon={<TbIcons size={20} />}
         title="Shapes"
       />
       <button
@@ -105,7 +107,7 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
       <button
         onClick={handleColorPickerClick}
         title="Color Picker"
-        style={{ background: isColorPickerActive ? "#b53b74" : "#3c3c3c" }}
+        style={{ background: isColorPickerActive ? "#b53b74" : "#1e1e1e" }}
         onMouseEnter={() => setActiveTool(null)}
       >
         <CgColorPicker size={20} />
@@ -127,7 +129,7 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
       />
       <ToolbarButton
         toolName="templates"
-        icon={<FiGrid size={20} />}
+        icon={<LuLayoutTemplate size={20} />}
         title="Templates"
       />
 

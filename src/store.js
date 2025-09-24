@@ -19,6 +19,32 @@ const createNewPage = (pageNumber, width = 800, height = 600) => {
   };
 };
 
+const generatePreview = (pageData) => {
+  return new Promise((resolve) => {
+    // Use StaticCanvas for off-screen rendering; it's faster.
+    const staticCanvas = new fabric.StaticCanvas(null, {
+      width: pageData.width || 800,
+      height: pageData.height || 600,
+    });
+
+    // Get the latest state from the page's history
+    const latestState = pageData.undoStack[pageData.undoStack.length - 1];
+
+    staticCanvas.loadFromJSON(latestState, () => {
+      // Export the canvas as a low-quality PNG Data URL to save space
+      const dataUrl = staticCanvas.toDataURL({
+        format: "png",
+        quality: 0.7, // Lower quality to keep the string small
+      });
+
+      // Clean up the temporary canvas to free memory
+      staticCanvas.dispose();
+
+      resolve(dataUrl);
+    });
+  });
+};
+
 const useStore = create((set, get) => ({
   // Core State
   canvas: null,
@@ -56,30 +82,42 @@ const useStore = create((set, get) => ({
 
   // ✅ CORRECTLY SAVES ALL PAGES
   saveTemplate: async (name) => {
-    const { pages, canvas, activePageIndex } = get();
-    if (!pages || pages.length === 0 || !canvas) return;
+    const { pages, activePageIndex } = get();
+    if (!pages || pages.length === 0) return;
 
-    const currentStateJson = canvas.toJSON();
-    const updatedPages = pages.map((page, i) => {
-      if (i === activePageIndex) {
-        return {
-          ...page,
-          undoStack: [...page.undoStack, currentStateJson],
-          redoStack: [],
-        };
-      }
-      return page;
-    });
+    // --- Generate the preview ---
+    // We'll use the currently active page for the preview image
+    const activePageData = pages[activePageIndex];
+    const previewImage = await generatePreview(activePageData);
+    // -------------------------
 
-    await fetch("http://localhost:5000/api/templates/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, data: updatedPages }),
-    });
+    try {
+      const response = await fetch("http://localhost:5000/api/templates/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // ✅ NEW: Send the name, page data, AND the new preview image
+        body: JSON.stringify({ name, data: pages, previewImage }),
+      });
 
-    await get().fetchTemplates();
+      if (!response.ok) throw new Error("Server failed to save template");
+
+      const newTemplate = await response.json();
+
+      // Update state locally for a fast UI response
+      set((state) => ({
+        templates: [
+          ...state.templates,
+          {
+            id: newTemplate.id,
+            name: newTemplate.name,
+            previewImage: newTemplate.previewImage,
+          },
+        ],
+      }));
+    } catch (err) {
+      console.error("❌ Failed to save template:", err);
+    }
   },
-
   // ✅ CORRECTLY LOADS ALL PAGES (AND HANDLES OLD TEMPLATES)
   loadTemplate: async (id) => {
     const canvas = get().canvas;
