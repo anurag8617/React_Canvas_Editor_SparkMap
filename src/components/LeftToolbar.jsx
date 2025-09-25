@@ -18,6 +18,51 @@ import {
 import { FiTrash2 } from "react-icons/fi";
 import IconLibrary from "./icons/IconLibrary";
 
+// ✅ 1. NEW COMPONENT: An intelligent grid item that adjusts its size.
+// It checks the image's dimensions and sets its orientation.
+const ImageGridItem = ({ src, onImageClick }) => {
+  const [orientation, setOrientation] = useState("landscape"); // Default orientation
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      // If height is significantly greater than width, it's portrait
+      if (img.naturalHeight > img.naturalWidth * 1.2) {
+        setOrientation("portrait");
+      }
+    };
+  }, [src]);
+
+  const itemStyle = {
+    // For portrait images, it will span 3 rows. For landscape/square, it spans 2.
+    gridRowEnd: orientation === "portrait" ? "span 3" : "span 2",
+    border: "2px solid transparent",
+    borderRadius: "6px",
+    overflow: "hidden",
+    cursor: "pointer",
+    transition: "border 0.2s",
+  };
+
+  return (
+    <div
+      className="image-item"
+      style={itemStyle}
+      onClick={onImageClick}
+      onMouseEnter={(e) => (e.currentTarget.style.border = "2px solid #b53b74")}
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.border = "2px solid transparent")
+      }
+    >
+      <img
+        src={src}
+        alt="grid item"
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </div>
+  );
+};
+
 const LeftToolbar = ({ activeTool }) => {
   const {
     canvas,
@@ -28,31 +73,25 @@ const LeftToolbar = ({ activeTool }) => {
     bringForward,
     sendBackwards,
     templates,
-    saveTemplate, // ✅ Updated store action
+    saveTemplate,
     loadTemplate,
-    deleteTemplate, // ✅ Updated store action
+    deleteTemplate,
   } = useStore();
 
-  // ✅ FIX: The component now only calls the store action. No fetch logic here.
   const handleSaveTemplate = async () => {
     if (!canvas) return;
-
     if (canvas.getObjects().length === 0) {
       alert("Canvas is empty. Add something before saving a template.");
       return;
     }
-
     const name = prompt("Enter a template name:");
     if (!name) return;
-
-    // The store will handle the API call and state update
     await saveTemplate(name);
   };
 
   const uploadInputRef = useRef(null);
   const [images, setImages] = useState([]);
   const [activeImageTab, setActiveImageTab] = useState("my");
-
   const [searchQuery, setSearchQuery] = useState("nature");
   const [unsplashImages, setUnsplashImages] = useState([]);
   const [unsplashError, setUnsplashError] = useState(null);
@@ -63,7 +102,6 @@ const LeftToolbar = ({ activeTool }) => {
         const res = await fetch("http://localhost:5000/api/images");
         if (!res.ok) throw new Error(`Failed to fetch: ${res.statusText}`);
         const data = await res.json();
-        // Assuming your backend returns a full URL now in the 'url' field
         const imageUrls = data.map((img) => img.url).filter(Boolean);
         setImages(imageUrls);
       } catch (err) {
@@ -392,6 +430,7 @@ const LeftToolbar = ({ activeTool }) => {
                 onChange={handleImageUpload}
                 style={{ display: "none" }}
               />
+              
             </div>
           )}
           {activeImageTab === "pre" && (
@@ -429,72 +468,29 @@ const LeftToolbar = ({ activeTool }) => {
               marginTop: "10px",
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+              // ✅ 2. STYLE CHANGE: We define a base height for each grid row.
+              gridAutoRows: "40px",
               gap: "10px",
               maxHeight: "500px",
               overflowY: "auto",
               paddingRight: "5px",
             }}
           >
+            {/* ✅ 3. LOGIC CHANGE: We now use our new ImageGridItem component. */}
             {activeImageTab === "my"
               ? images.map((imgUrl, i) => (
-                  <div
+                  <ImageGridItem
                     key={i}
-                    className="image-item"
-                    style={{
-                      border: "2px solid transparent",
-                      borderRadius: "6px",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      transition: "border 0.2s",
-                    }}
-                    onClick={() => addImageFromUrl(imgUrl)}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.border = "2px solid #b53b74")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.border = "2px solid transparent")
-                    }
-                  >
-                    <img
-                      src={imgUrl}
-                      alt={`uploaded ${i + 1}`}
-                      style={{
-                        width: "100%",
-                        height: "70px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
+                    src={imgUrl}
+                    onImageClick={() => addImageFromUrl(imgUrl)}
+                  />
                 ))
               : unsplashImages.map((img, i) => (
-                  <div
-                    key={i}
-                    className="image-item"
-                    style={{
-                      border: "2px solid transparent",
-                      borderRadius: "6px",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      transition: "border 0.2s",
-                    }}
-                    onClick={() => addImageFromUrl(img.url)}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.border = "2px solid #b53b74")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.border = "2px solid transparent")
-                    }
-                  >
-                    <img
-                      src={img.thumb}
-                      alt={`unsplash ${i + 1}`}
-                      style={{
-                        width: "100%",
-                        height: "70px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
+                  <ImageGridItem
+                    key={img.id || i}
+                    src={img.thumb}
+                    onImageClick={() => addImageFromUrl(img.url)}
+                  />
                 ))}
           </div>
         </div>
@@ -542,7 +538,7 @@ const LeftToolbar = ({ activeTool }) => {
               >
                 <button
                   onClick={(e) => {
-                    e.stopPropagation(); // prevent loadTemplate on click
+                    e.stopPropagation();
                     if (window.confirm(`Delete template "${tpl.name}"?`)) {
                       deleteTemplate(tpl.id);
                     }
@@ -571,10 +567,9 @@ const LeftToolbar = ({ activeTool }) => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: "#444", // Add a fallback background
+                    background: "#444",
                   }}
                 >
-                  {/* ✅ CORRECTED: Check for tpl.previewImage */}
                   {tpl.previewImage ? (
                     <img
                       src={tpl.previewImage}
@@ -586,8 +581,6 @@ const LeftToolbar = ({ activeTool }) => {
                       }}
                     />
                   ) : (
-                    // This div is no longer needed but is harmless as a fallback
-                    // in case the parent div's background doesn't show.
                     <div
                       style={{
                         width: "100%",
