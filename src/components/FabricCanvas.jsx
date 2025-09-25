@@ -414,7 +414,10 @@ const FabricCanvas = () => {
         background: "transparent",
       }}
     >
-      <canvas ref={canvasRef} style={{ background: "#ffffff" }} />
+      <canvas
+        ref={canvasRef}
+        style={{ background: "#ffffff", border: "2px solid black" }}
+      />
       {contextMenu.visible && (
         <ContextMenu
           x={contextMenu.x}

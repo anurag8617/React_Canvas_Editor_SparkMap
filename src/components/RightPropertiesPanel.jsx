@@ -105,8 +105,47 @@ const RightPropertiesPanel = () => {
   const isShape =
     activeObject && ["rect", "circle", "triangle"].includes(activeObject.type);
 
+  const propertiesPanelStyle = {
+    background: "#2a2a2a",
+    padding: "1rem",
+    width: "280px",
+    flexShrink: 0,
+    overflowY: "auto",
+  };
+
+  const propertyRowStyle = {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+    marginBottom: "0.75rem",
+  };
+
+  const labelStyle = {
+    width: "90px",
+    fontSize: "0.8rem",
+    flexShrink: 0,
+  };
+
+  const inputStyle = {
+    backgroundColor: "#1e1e1e",
+    color: "#f0f0f0",
+    border: "none",
+    borderRadius: "4px",
+    padding: "0.5rem",
+    fontSize: "0.875rem",
+    width: "100%",
+  };
+
+  const colorInputStyle = {
+    height: "38px",
+    padding: "2px",
+    border: "none",
+    minWidth: "40px",
+    width: "40px",
+  };
+
   return (
-    <div className="properties-panel">
+    <div style={propertiesPanelStyle}>
       {/* ✅ ADDED A DISPLAY FOR THE CURRENTLY PICKED COLOR */}
       <div style={{ marginBottom: "1.5rem" }}>
         <label style={{ fontSize: "0.8rem", color: "#888" }}>
@@ -131,31 +170,34 @@ const RightPropertiesPanel = () => {
           {/* Generic Properties (Fill, Stroke, etc.) */}
           {/* No changes needed below this line, your existing code is perfect */}
 
-          <div className="property-row">
+          <div style={propertyRowStyle}>
             <MdFormatColorFill size={20} />
-            <label>Fill</label>
+            <label style={labelStyle}>Fill</label>
             <input
               type="color"
+              style={{ ...inputStyle, ...colorInputStyle }}
               value={toHex(props.fill)}
               onChange={(e) => handleChange("fill", e.target.value)}
             />
           </div>
 
-          <div className="property-row">
+          <div style={propertyRowStyle}>
             <MdBorderColor size={20} />
-            <label>Stroke</label>
+            <label style={labelStyle}>Stroke</label>
             <input
               type="color"
+              style={{ ...inputStyle, ...colorInputStyle }}
               value={toHex(props.stroke)}
               onChange={(e) => handleChange("stroke", e.target.value)}
             />
           </div>
 
-          <div className="property-row">
+          <div style={propertyRowStyle}>
             <MdLineWeight size={20} />
-            <label>Stroke Width</label>
+            <label style={labelStyle}>Stroke Width</label>
             <input
               type="number"
+              style={inputStyle}
               min="0"
               value={props.strokeWidth}
               onChange={(e) =>
@@ -164,11 +206,12 @@ const RightPropertiesPanel = () => {
             />
           </div>
 
-          <div className="property-row">
+          <div style={propertyRowStyle}>
             <MdOpacity size={20} />
-            <label>Opacity</label>
+            <label style={labelStyle}>Opacity</label>
             <input
               type="range"
+              style={inputStyle}
               min="0"
               max="1"
               step="0.01"
@@ -180,11 +223,12 @@ const RightPropertiesPanel = () => {
           </div>
 
           {isShape && activeObject.type === "rect" && (
-            <div className="property-row">
+            <div style={propertyRowStyle}>
               <MdRoundedCorner size={20} />
-              <label>Radius</label>
+              <label style={labelStyle}>Radius</label>
               <input
                 type="number"
+                style={inputStyle}
                 min="0"
                 value={props.borderRadius}
                 onChange={(e) => handleChange("borderRadius", e.target.value)}
@@ -197,10 +241,11 @@ const RightPropertiesPanel = () => {
               <hr style={{ border: "1px solid #555", margin: "1.5rem 0" }} />
               <h3>Text</h3>
 
-              <div className="property-row">
+              <div style={propertyRowStyle}>
                 <MdTextFields size={20} />
-                <label>Font</label>
+                <label style={labelStyle}>Font</label>
                 <select
+                  style={inputStyle}
                   value={props.fontFamily}
                   onChange={(e) => handleChange("fontFamily", e.target.value)}
                 >
@@ -211,11 +256,12 @@ const RightPropertiesPanel = () => {
                 </select>
               </div>
 
-              <div className="property-row">
+              <div style={propertyRowStyle}>
                 <MdFormatSize size={20} />
-                <label>Size</label>
+                <label style={labelStyle}>Size</label>
                 <input
                   type="number"
+                  style={inputStyle}
                   min="1"
                   value={props.fontSize}
                   onChange={(e) =>
@@ -224,10 +270,11 @@ const RightPropertiesPanel = () => {
                 />
               </div>
 
-              <div className="property-row">
+              <div style={propertyRowStyle}>
                 <MdOutlineSquare size={20} />
-                <label>Weight</label>
+                <label style={labelStyle}>Weight</label>
                 <select
+                  style={inputStyle}
                   value={props.fontWeight}
                   onChange={(e) => handleChange("fontWeight", e.target.value)}
                 >
@@ -236,10 +283,11 @@ const RightPropertiesPanel = () => {
                 </select>
               </div>
 
-              <div className="property-row">
+              <div style={propertyRowStyle}>
                 <MdViewWeek size={20} />
-                <label>Align</label>
+                <label style={labelStyle}>Align</label>
                 <select
+                  style={inputStyle}
                   value={props.textAlign}
                   onChange={(e) => handleChange("textAlign", e.target.value)}
                 >
@@ -250,10 +298,11 @@ const RightPropertiesPanel = () => {
                 </select>
               </div>
 
-              <div className="property-row">
+              <div style={propertyRowStyle}>
                 <MdAutoFixHigh size={20} />
-                <label>Decoration</label>
+                <label style={labelStyle}>Decoration</label>
                 <select
+                  style={inputStyle}
                   value={props.textDecoration}
                   onChange={(e) =>
                     handleChange("textDecoration", e.target.value)

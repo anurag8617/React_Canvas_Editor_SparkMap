@@ -60,11 +60,51 @@ const TemplateManager = () => {
     }
   };
 
-  return (
-    <div className="template-manager">
-      <h3>📑 Templates</h3>
+  const templateManagerStyle = {
+    background: "#2a2a2a",
+    padding: "1rem",
+    marginTop: "1rem",
+    borderRadius: "8px",
+    color: "white",
+  };
 
-      <button onClick={handleSaveTemplate}>Save Current Canvas</button>
+  const buttonStyle = {
+    background: "#b53b74",
+    color: "white",
+    border: "none",
+    padding: "0.5rem 1rem",
+    cursor: "pointer",
+    borderRadius: "6px",
+  };
+
+  const selectStyle = {
+    width: "100%",
+    marginTop: "0.5rem",
+    padding: "0.4rem",
+    borderRadius: "6px",
+  };
+
+  const templateListStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  };
+
+  const deleteBtnStyle = {
+    backgroundColor: "#c94040",
+    padding: "0.5rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  return (
+    <div style={templateManagerStyle}>
+      <h3 style={{ marginBottom: "0.5rem" }}>📑 Templates</h3>
+
+      <button onClick={handleSaveTemplate} style={buttonStyle}>
+        Save Current Canvas
+      </button>
 
       <div style={{ marginTop: "1rem" }}>
         {templates.length === 0 ? (
@@ -74,7 +114,12 @@ const TemplateManager = () => {
             {templates.map((tpl) => (
               <li key={tpl.id} style={{ marginBottom: "0.5rem" }}>
                 {tpl.name}{" "}
-                <button onClick={() => handleLoadTemplate(tpl.id)}>Load</button>
+                <button
+                  onClick={() => handleLoadTemplate(tpl.id)}
+                  style={buttonStyle}
+                >
+                  Load
+                </button>
               </li>
             ))}
           </ul>

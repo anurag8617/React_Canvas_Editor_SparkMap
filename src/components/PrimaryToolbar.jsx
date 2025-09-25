@@ -80,10 +80,29 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
     }
   };
 
+  const primaryToolbarStyle = {
+    backgroundColor: "#1e1e1e",
+    borderRadius: "0.5rem",
+    padding: "1rem",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "0.75rem",
+  };
+
   const ToolbarButton = ({ toolName, icon, title }) => (
     <button
       onMouseEnter={() => setActiveTool(toolName)}
-      style={{ background: activeTool === toolName ? "#b53b74" : "#1e1e1e" }}
+      style={{
+        background: activeTool === toolName ? "#b53b74" : "#1e1e1e",
+        cursor: "pointer",
+        width: "auto",
+        border: "none",
+        borderRadius: "4px",
+        padding: "0.5rem",
+        fontSize: "0.875rem",
+        color: "#f0f0f0",
+      }}
       title={title}
     >
       {icon}
@@ -91,7 +110,7 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
   );
 
   return (
-    <div className="primary-toolbar">
+    <div style={primaryToolbarStyle}>
       <ToolbarButton
         toolName="shapes"
         icon={<TbIcons size={20} />}
@@ -101,13 +120,32 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
         onClick={addText}
         title="Add Text"
         onMouseEnter={() => setActiveTool(null)}
+        style={{
+          background: "#1e1e1e",
+          cursor: "pointer",
+          width: "auto",
+          border: "none",
+          borderRadius: "4px",
+          padding: "0.5rem",
+          fontSize: "0.875rem",
+          color: "#f0f0f0",
+        }}
       >
         <FiType size={20} />
       </button>
       <button
         onClick={handleColorPickerClick}
         title="Color Picker"
-        style={{ background: isColorPickerActive ? "#b53b74" : "#1e1e1e" }}
+        style={{
+          background: isColorPickerActive ? "#b53b74" : "#1e1e1e",
+          cursor: "pointer",
+          width: "auto",
+          border: "none",
+          borderRadius: "4px",
+          padding: "0.5rem",
+          fontSize: "0.875rem",
+          color: "#f0f0f0",
+        }}
         onMouseEnter={() => setActiveTool(null)}
       >
         <CgColorPicker size={20} />
@@ -137,6 +175,16 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
         onClick={undo}
         title="Undo"
         onMouseEnter={() => setActiveTool(null)}
+        style={{
+          background: "#1e1e1e",
+          cursor: "pointer",
+          width: "auto",
+          border: "none",
+          borderRadius: "4px",
+          padding: "0.5rem",
+          fontSize: "0.875rem",
+          color: "#f0f0f0",
+        }}
       >
         <FiCornerUpLeft size={20} />
       </button>
@@ -144,6 +192,16 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
         onClick={redo}
         title="Redo"
         onMouseEnter={() => setActiveTool(null)}
+        style={{
+          background: "#1e1e1e",
+          cursor: "pointer",
+          width: "auto",
+          border: "none",
+          borderRadius: "4px",
+          padding: "0.5rem",
+          fontSize: "0.875rem",
+          color: "#f0f0f0",
+        }}
       >
         <FiCornerUpRight size={20} />
       </button>
@@ -151,6 +209,16 @@ const PrimaryToolbar = ({ setActiveTool, activeTool }) => {
         onClick={deleteSelection}
         title="Delete"
         onMouseEnter={() => setActiveTool(null)}
+        style={{
+          background: "#1e1e1e",
+          cursor: "pointer",
+          width: "auto",
+          border: "none",
+          borderRadius: "4px",
+          padding: "0.5rem",
+          fontSize: "0.875rem",
+          color: "#f0f0f0",
+        }}
       >
         <FiTrash2 size={20} />
       </button>

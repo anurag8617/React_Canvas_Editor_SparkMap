@@ -11,7 +11,7 @@ body {
   overflow: hidden;
 }
 
-.app-container {
+/* .app-container {
   display: flex;
   height: 100vh;
 }
@@ -130,8 +130,8 @@ input[type="color"] {
 
 .app-container.presentation-mode .left-column,
 .app-container.presentation-mode .properties-panel,
-.app-container.presentation-mode .main-content > .header, /* Target header via class if needed */
-.app-container.presentation-mode .main-content > .page-slider /* Target slider via class if needed */ {
+.app-container.presentation-mode .main-content > .header,
+.app-container.presentation-mode .main-content > .page-slider {
   display: none;
 }
 
@@ -142,8 +142,6 @@ input[type="color"] {
 .canvas-panel .canvas-container .lower-canvas {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
-
-/* Add this to your main CSS file (e.g., index.css or App.css) */
 
 .image-grid {
   display: grid;
@@ -170,33 +168,30 @@ input[type="color"] {
   display: block;
 }
 
-/* scroll bar... */
 ::-webkit-scrollbar {
-  width: 8px; /* vertical scrollbar */
-  height: 8px; /* horizontal scrollbar */
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #2a2a2a; /* track color */
+  background: #2a2a2a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #555; /* thumb color */
+  background: #555;
   border-radius: 6px;
-  border: 2px solid #2a2a2a; /* gives spacing effect */
+  border: 2px solid #2a2a2a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
 
-/* Firefox */
 * {
-  scrollbar-width: thin; /* slim scrollbar */
-  scrollbar-color: #555 #2a2a2a; /* thumb & track */
+  scrollbar-width: thin;
+  scrollbar-color: #555 #2a2a2a;
 }
 
-/* ...............Template..CSS................. */
 .template-manager {
   background: #2a2a2a;
   padding: 1rem;
@@ -236,10 +231,9 @@ input[type="color"] {
 }
 
 .template-list .delete-btn {
-  background-color: #c94040; /* Red color for delete */
+  background-color: #c94040;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-/* ..................................................*/
+} */

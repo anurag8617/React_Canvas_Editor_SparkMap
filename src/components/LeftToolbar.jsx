@@ -299,11 +299,20 @@ const LeftToolbar = ({ activeTool }) => {
       </button>
     );
   };
+  const leftToolbarStyle = {
+    position: "absolute",
+    left: "100%",
+    top: 0,
+    height: "100%",
+    borderRadius: "0.5rem",
+    padding: "1rem",
+    width: "200px",
+  };
 
   return (
     <div
-      className="left-toolbar"
       style={{
+        ...leftToolbarStyle,
         width: "260px",
         boxSizing: "border-box",
         background: "#1e1e1e",
@@ -430,7 +439,6 @@ const LeftToolbar = ({ activeTool }) => {
                 onChange={handleImageUpload}
                 style={{ display: "none" }}
               />
-              
             </div>
           )}
           {activeImageTab === "pre" && (
@@ -513,7 +521,18 @@ const LeftToolbar = ({ activeTool }) => {
               gap: "12px",
             }}
           >
-            <button onClick={handleSaveTemplate} className="toolbar-btn">
+            <button
+              onClick={handleSaveTemplate}
+              style={{
+                backgroundColor: "#1e1e1e",
+                color: "#f0f0f0",
+                border: "none",
+                borderRadius: "4px",
+                padding: "0.5rem",
+                fontSize: "0.875rem",
+                width: "100%",
+              }}
+            >
               💾 Save Template
             </button>
             {templates.map((tpl) => (
